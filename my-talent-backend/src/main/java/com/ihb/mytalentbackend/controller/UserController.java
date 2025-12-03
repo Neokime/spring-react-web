@@ -1,6 +1,7 @@
 package com.ihb.mytalentbackend.controller;
 
 import com.ihb.mytalentbackend.domain.Role;
+import com.ihb.mytalentbackend.security.UserPrincipal;
 import com.ihb.mytalentbackend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

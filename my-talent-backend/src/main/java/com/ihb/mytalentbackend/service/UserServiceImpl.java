@@ -1,7 +1,8 @@
+package com.ihb.mytalentbackend.service;
+
 import com.ihb.mytalentbackend.domain.Role;
 import com.ihb.mytalentbackend.domain.User;
 import com.ihb.mytalentbackend.repository.UserRepository;
-import com.ihb.mytalentbackend.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -27,13 +28,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User findUserByUsername(String username) {
-        return userRepository.findByUsername(username);
+    public User findUserByEmail(String email) {
+        return userRepository.findByEmail(email).orElse(null);
     }
 
     @Override
-    public void changeRole(String username, Role newRole) {
-        userRepository.updateUserRole(username, newRole);
+    public void changeRole(String email, Role newRole) {
+        userRepository.updateUserRole(email, newRole);
     }
 
     @Override
