@@ -11,24 +11,26 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
 public class AuthenticationController {
 
     private final AuthenticationService authenticationService;
     private final UserService userService;
 
     @PostMapping("/sign-up")
-    public ResponseEntity<Object> signUp(@RequestBody User user) {
+    public ResponseEntity<?> signUp(@RequestBody User user) {
+
         if (userService.findUserByEmail(user.getEmail()) != null) {
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("이미 존재하는 이메일입니다.");
         }
-        return new ResponseEntity<>(userService.saveUser(user), HttpStatus.CREATED);
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(userService.saveUser(user));
     }
 
     @PostMapping("/sign-in")
-    public ResponseEntity<Object> signIn(@RequestBody User user) {
-        // signInAndReturnJWT 안에서 인증 + JWT 생성
+    public ResponseEntity<?> signIn(@RequestBody User user) {
+
         User signedIn = authenticationService.signInAndReturnJWT(user);
-        return new ResponseEntity<>(signedIn, HttpStatus.OK);
+        return ResponseEntity.ok(signedIn);
     }
 }
