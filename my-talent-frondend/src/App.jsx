@@ -7,6 +7,8 @@ import Navbar from "./components/Navbar";
 import TalentCreatePage from "./pages/talents/TalentCreatePage";
 import TalentDetail from "./pages/talents/TalentDetail";
 import TalentEditPage from "./pages/talents/TalentEditPage";
+import Profile from "./pages/profile/Profile";
+
 
 function App() {
   return (
@@ -23,6 +25,7 @@ function App() {
           <Route path="/talents/create" element={<TalentCreatePage />} />
           <Route path="/talents/:id" element={<TalentDetail />} />
           <Route path="/talents/:id/edit" element={<TalentEditPage />} />
+          <Route path="/profile" element={<Profile />} />
         </Routes>
       </main>
     </BrowserRouter>

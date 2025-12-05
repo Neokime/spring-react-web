@@ -17,11 +17,17 @@ class TalentService {
 
   // 재능 목록 조회 (pageRequestDTO 기반)
   getTalentList(page = 1, size = 10) {
-  return api.get(`${TALENT_API}?page=${page}&size=${size}`, {
-    headers: authHeader(),
-  });
-}
+    return api.get(`${TALENT_API}?page=${page}&size=${size}`, {
+      headers: authHeader(),
+    });
+  }
 
+  // ⭐ 내 재능 목록 조회 (추가!)
+  getTalentsByUser(userId) {
+    return api.get(`${TALENT_API}/user/${userId}`, {
+      headers: authHeader(),
+    });
+  }
 
   // 재능 수정
   updateTalent(id, talent) {
