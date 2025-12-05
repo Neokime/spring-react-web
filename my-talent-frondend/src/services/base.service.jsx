@@ -1,16 +1,44 @@
+// src/services/base.service.js
 import axios from "axios";
+import useUserStore from "../store/useUserStroe";
+import { BASE_API_URL } from "../common/constants";
 
 const api = axios.create({
-  baseURL: "http://localhost:8080/api",
+  baseURL: BASE_API_URL + "/api", // ✅ 여기서 /api까지
 });
 
-// 아직은 zustand 안 쓰니까 localStorage 기준으로만 처리
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("accessToken");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+export const authHeader = () => {
+  const { user } = useUserStore.getState();
+
+  const headers = {
+    "Content-Type": "application/json",
+  };
+
+  if (user?.token) {
+    headers.Authorization = "Bearer " + user.token;
   }
-  return config;
-});
+
+  return headers;
+};
+
+const handleResponseWithLoginCheck = () => {
+  api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+      const { user, clearCurrentUser } = useUserStore.getState();
+      const isLoggedIn = user?.token;
+      const status = error?.response?.status;
+
+      if (isLoggedIn && [401, 403].includes(status)) {
+        clearCurrentUser();
+        window.location.href = "/login";
+      }
+
+      return Promise.reject(error);
+    }
+  );
+};
+
+handleResponseWithLoginCheck();
 
 export default api;

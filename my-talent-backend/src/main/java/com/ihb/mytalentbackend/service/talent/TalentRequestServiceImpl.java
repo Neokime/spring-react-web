@@ -1,0 +1,109 @@
+// src/main/java/com/ihb/mytalentbackend/service/talent/TalentRequestServiceImpl.java
+package com.ihb.mytalentbackend.service.talent;
+
+import com.ihb.mytalentbackend.domain.talent.TalentBoard;
+import com.ihb.mytalentbackend.domain.talent.TalentRequest;
+import com.ihb.mytalentbackend.domain.talent.TalentRequestStatus;
+import com.ihb.mytalentbackend.domain.User;
+import com.ihb.mytalentbackend.dto.talent.TalentRequestCreateDTO;
+import com.ihb.mytalentbackend.dto.talent.TalentRequestResponseDTO;
+import com.ihb.mytalentbackend.repository.talent.TalentRepository;
+import com.ihb.mytalentbackend.repository.talent.TalentRequestRepository;
+import com.ihb.mytalentbackend.repository.UserRepository;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+@Transactional
+public class TalentRequestServiceImpl implements TalentRequestService {
+
+    private final TalentRequestRepository talentRequestRepository;
+    private final TalentRepository talentRepository;
+    private final UserRepository userRepository;
+
+    // ================= 신청 생성 =================
+    @Override
+    public TalentRequestResponseDTO createRequest(Long talentId,
+                                                  Long requesterId,
+                                                  TalentRequestCreateDTO dto) {
+
+        // 1. 재능 조회
+        TalentBoard talent = talentRepository.findById(talentId)
+                .orElseThrow(() -> new RuntimeException("재능을 찾을 수 없습니다."));
+
+        // 2. 신청자 조회
+        User requester = userRepository.findById(requesterId)
+                .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
+
+        // 3. 시간 검증
+        if (dto.getHours() == null || dto.getHours() <= 0) {
+            throw new RuntimeException("신청 시간(hours)은 1 이상이어야 합니다.");
+        }
+
+        // 4. 총 크레딧 계산 (시간당 크레딧 * 신청 시간)
+        int totalCredits = talent.getCreditPerHour() * dto.getHours();
+
+        // 5. 엔티티 생성
+        TalentRequest entity = TalentRequest.builder()
+                .talent(talent)
+                .requester(requester)
+                .message(dto.getMessage())
+                .hours(dto.getHours())
+                .totalCredits(totalCredits)
+                .status(TalentRequestStatus.PENDING)
+                .build();
+
+        // 6. 저장
+        TalentRequest saved = talentRequestRepository.save(entity);
+
+        // 7. DTO로 변환해서 반환
+        return entityToDto(saved);
+    }
+
+    // ================= 내가 신청한 목록 =================
+    @Override
+    public List<TalentRequestResponseDTO> getMyRequests(Long requesterId) {
+        User requester = userRepository.findById(requesterId)
+                .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
+
+        return talentRequestRepository.findByRequester(requester).stream()
+                .map(this::entityToDto)
+                .toList();
+    }
+
+    // ================= 내 재능에 들어온 신청들 =================
+    @Override
+    public List<TalentRequestResponseDTO> getRequestsForTalent(Long talentId, Long ownerId) {
+
+        TalentBoard talent = talentRepository.findById(talentId)
+                .orElseThrow(() -> new RuntimeException("재능을 찾을 수 없습니다."));
+
+        // 작성자 확인 (본인 재능만 조회 가능)
+        if (!talent.getUser().getId().equals(ownerId)) {
+            throw new RuntimeException("해당 재능의 신청을 조회할 권한이 없습니다.");
+        }
+
+        return talentRequestRepository.findByTalent(talent).stream()
+                .map(this::entityToDto)
+                .toList();
+    }
+
+    // ================== 매핑 메서드 ==================
+    private TalentRequestResponseDTO entityToDto(TalentRequest entity) {
+        return TalentRequestResponseDTO.builder()
+                .id(entity.getId())
+                .talentId(entity.getTalent().getId())
+                .requesterId(entity.getRequester().getId())
+                .message(entity.getMessage())
+                .hours(entity.getHours())
+                .totalCredits(entity.getTotalCredits())
+                .status(entity.getStatus().name())
+                .requestedAt(entity.getRequestedAt())
+                .processedAt(entity.getProcessedAt())
+                .build();
+    }
+}

@@ -1,64 +1,61 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { loginService } from '../../services/auth.service';
+import { registerService } from '../../services/auth.service';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUserCircle } from '@fortawesome/free-solid-svg-icons';
+// import './Register.css';
 import useUserStore from '../../store/useUserStroe';
 
-const Login = () => {
+const Register = () => {
   const [form, setForm] = useState({
     email: '',
+    nickname: '',
     password: '',
   });
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  const setCurrentUser = useUserStore((state) => state.setCurrentUser);
+  // const currentUser = useUserStore((state) => state.user);
   const navigate = useNavigate();
 
-  // input 변경 처리
+  // useEffect(() => {
+  //   if (currentUser?.id) {
+  //     navigate('/talents');
+  //   }
+  // }, [currentUser, navigate]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-
     setForm((prev) => ({
       ...prev,
       [name]: value,
     }));
   };
 
-  // 로그인 처리
-  const handleLogin = async (e) => {
+  const handleRegister = (e) => {
     e.preventDefault();
     setSubmitted(true);
 
-    if (!form.email || !form.password) return;
+    if (!form.email || !form.nickname || !form.password) {
+      return;
+    }
 
     setLoading(true);
 
-    try {
-      const response = await loginService(form);
-
-      console.log("로그인 응답:", response.data);
-
-      // 백엔드 응답은 User 객체 전체를 그대로 반환하므로
-      const user = response.data;
-
-      // Zustand 저장
-      setCurrentUser({
-        id: user.id,
-        email: user.email,
-        nickname: user.nickname,
-        token: user.token,     // ← 백엔드 User 엔티티의 token 필드명에 맞춰 수정
+    registerService(form)
+      .then(() => {
+        navigate('/login');
+      })
+      .catch((error) => {
+        console.log(error);
+        if (error?.response?.status === 409) {
+          setErrorMessage('이미 존재하는 이메일입니다.');
+        } else {
+          setErrorMessage('예상하지 못한 에러가 발생했습니다.');
+        }
+        setLoading(false);
       });
-
-      navigate('/talents');
-    } catch (error) {
-      console.error(error);
-      setErrorMessage('이메일 또는 비밀번호가 올바르지 않습니다.');
-    } finally {
-      setLoading(false);
-    }
   };
 
   return (
@@ -68,14 +65,14 @@ const Login = () => {
 
         {errorMessage && <div className="alert alert-danger">{errorMessage}</div>}
 
-        <form onSubmit={handleLogin} noValidate className={submitted ? 'was-validated' : ''}>
-          <div className="form-group my-2">
+        <form onSubmit={handleRegister} noValidate className={submitted ? 'was-validated' : ''}>
+          <div className="form-group mb-2">
             <label htmlFor="email">이메일</label>
             <input
               type="email"
               name="email"
               className="form-control"
-              placeholder="이메일"
+              placeholder="email"
               value={form.email}
               onChange={handleChange}
               required
@@ -83,13 +80,27 @@ const Login = () => {
             <div className="invalid-feedback">이메일을 입력해주세요</div>
           </div>
 
-          <div className="form-group my-2">
+          <div className="form-group mb-2">
+            <label htmlFor="nickname">닉네임</label>
+            <input
+              type="text"
+              name="nickname"
+              className="form-control"
+              placeholder="nickname"
+              value={form.nickname}
+              onChange={handleChange}
+              required
+            />
+            <div className="invalid-feedback">닉네임을 입력해주세요</div>
+          </div>
+
+          <div className="form-group mb-2">
             <label htmlFor="password">비밀번호</label>
             <input
               type="password"
               name="password"
               className="form-control"
-              placeholder="비밀번호"
+              placeholder="password"
               value={form.password}
               onChange={handleChange}
               required
@@ -98,16 +109,16 @@ const Login = () => {
           </div>
 
           <button className="btn btn-info text-white w-100 mt-3" disabled={loading}>
-            로그인
+            가입하기
           </button>
         </form>
 
-        <Link to="/register" className="btn btn-link" style={{ color: 'darkgray' }}>
-          새 계정 만들기
+        <Link to="/login" className="btn btn-link" style={{ color: 'darkgray' }}>
+          이미 계정이 있습니다.
         </Link>
       </div>
     </div>
   );
 };
 
-export default Login;
+export default Register;

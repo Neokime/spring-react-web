@@ -31,8 +31,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         String jwt = jwtProvider.generateToken(principal);
 
         User signedIn = principal.getUser();
-        // token 필드를 User에 만들지 않았으니, 프론트에 따로 내려주고 싶다면 DTO로 빼는 게 좋음.
-        // 지금은 그냥 로그인을 위해 principal.user 반환
+
+        // 🔥 이 한 줄이 핵심!
+        signedIn.setToken(jwt);
+
         return signedIn;
     }
 }

@@ -1,5 +1,12 @@
+// src/services/auth.service.js
 import api from "./base.service";
 
-export const authService = {
-  login: (email, password) => api.post("/auth/sign-in", { email, password }),
+const loginService = (user) => {
+  return api.post("/auth/sign-in", user);   
 };
+
+const registerService = (user) => {
+  return api.post("/auth/sign-up", user);
+};
+
+export { loginService, registerService };

@@ -35,4 +35,7 @@ public class User {
 
     @CreationTimestamp
     private LocalDateTime createdAt;
+
+    @Transient
+    private String token;
 }

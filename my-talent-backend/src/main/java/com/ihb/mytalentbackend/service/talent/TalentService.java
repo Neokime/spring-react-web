@@ -19,6 +19,6 @@ public interface TalentService {
     // 수정
     TalentResponseDTO updateTalent(Long id, TalentRequestDTO request, Long userId);
 
-    // 삭제
+
     void deleteTalent(Long id, Long userId);
 }
