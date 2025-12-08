@@ -22,7 +22,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public User signInAndReturnJWT(User signInRequest) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        signInRequest.getEmail(),
+                        signInRequest.getUserId(),
                         signInRequest.getPassword()
                 )
         );
@@ -31,8 +31,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         String jwt = jwtProvider.generateToken(principal);
 
         User signedIn = principal.getUser();
-
-        // 🔥 이 한 줄이 핵심!
         signedIn.setToken(jwt);
 
         return signedIn;

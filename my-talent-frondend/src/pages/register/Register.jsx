@@ -1,61 +1,54 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { registerService } from '../../services/auth.service';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUserCircle } from '@fortawesome/free-solid-svg-icons';
-// import './Register.css';
-import useUserStore from '../../store/useUserStroe';
 
 const Register = () => {
   const [form, setForm] = useState({
+    userId: '',
     email: '',
     nickname: '',
     password: '',
   });
+
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  // const currentUser = useUserStore((state) => state.user);
   const navigate = useNavigate();
-
-  // useEffect(() => {
-  //   if (currentUser?.id) {
-  //     navigate('/talents');
-  //   }
-  // }, [currentUser, navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
     setForm((prev) => ({
       ...prev,
       [name]: value,
     }));
   };
 
-  const handleRegister = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
     setSubmitted(true);
 
-    if (!form.email || !form.nickname || !form.password) {
-      return;
-    }
+    if (!form.userId || !form.email || !form.nickname || !form.password) return;
 
     setLoading(true);
 
-    registerService(form)
-      .then(() => {
-        navigate('/login');
-      })
-      .catch((error) => {
-        console.log(error);
-        if (error?.response?.status === 409) {
-          setErrorMessage('이미 존재하는 이메일입니다.');
-        } else {
-          setErrorMessage('예상하지 못한 에러가 발생했습니다.');
-        }
-        setLoading(false);
-      });
+    try {
+      await registerService(form);
+      navigate('/login');
+    } catch (error) {
+      console.error(error);
+
+      if (error?.response?.status === 409) {
+        setErrorMessage(error.response.data || '이미 존재하는 아이디/이메일입니다.');
+      } else {
+        setErrorMessage('예상하지 못한 에러가 발생했습니다.');
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -66,13 +59,28 @@ const Register = () => {
         {errorMessage && <div className="alert alert-danger">{errorMessage}</div>}
 
         <form onSubmit={handleRegister} noValidate className={submitted ? 'was-validated' : ''}>
+          
+          <div className="form-group mb-2">
+            <label htmlFor="userId">아이디</label>
+            <input
+              type="text"
+              name="userId"
+              className="form-control"
+              placeholder="아이디 입력"
+              value={form.userId}
+              onChange={handleChange}
+              required
+            />
+            <div className="invalid-feedback">아이디를 입력해주세요</div>
+          </div>
+
           <div className="form-group mb-2">
             <label htmlFor="email">이메일</label>
             <input
               type="email"
               name="email"
               className="form-control"
-              placeholder="email"
+              placeholder="email@example.com"
               value={form.email}
               onChange={handleChange}
               required
@@ -86,7 +94,7 @@ const Register = () => {
               type="text"
               name="nickname"
               className="form-control"
-              placeholder="nickname"
+              placeholder="닉네임 입력"
               value={form.nickname}
               onChange={handleChange}
               required

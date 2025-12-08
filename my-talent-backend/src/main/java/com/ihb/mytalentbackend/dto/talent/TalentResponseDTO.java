@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 public class TalentResponseDTO {
 
     private Long id;
-    private Long userId;        // TalentBoard.getUser().getId()
+    private Long userId;
     private String title;
     private String category;
     private String description;

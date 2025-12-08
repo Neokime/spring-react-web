@@ -26,9 +26,14 @@ public class AuthenticationController {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("이미 존재하는 이메일입니다.");
         }
 
+        if (userService.findUserByUserId(user.getUserId()) != null) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("이미 존재하는 아이디입니다.");
+        }
+
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(userService.saveUser(user));
     }
+
 
     @PostMapping("/sign-in")
     public ResponseEntity<?> signIn(@RequestBody User user) {

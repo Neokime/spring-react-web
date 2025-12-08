@@ -17,4 +17,9 @@ public interface TalentRequestService {
 
     // 내 재능에 들어온 신청 목록
     List<TalentRequestResponseDTO> getRequestsForTalent(Long talentId, Long ownerId);
+
+    void acceptRequest(Long talentId, Long requestId, Long ownerId);
+
+
+     void rejectRequest(Long talentId, Long requestId, Long ownerId);
 }

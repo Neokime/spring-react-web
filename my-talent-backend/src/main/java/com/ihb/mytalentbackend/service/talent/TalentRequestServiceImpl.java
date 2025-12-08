@@ -92,7 +92,49 @@ public class TalentRequestServiceImpl implements TalentRequestService {
                 .toList();
     }
 
-    // ================== 매핑 메서드 ==================
+    @Override
+    public void acceptRequest(Long talentId, Long requestId, Long ownerId) {
+
+        TalentRequest request = talentRequestRepository.findById(requestId)
+                .orElseThrow(() -> new RuntimeException("요청을 찾을 수 없습니다."));
+
+        // 1) 재능이 맞는지 검증
+        if (!request.getTalent().getId().equals(talentId)) {
+            throw new RuntimeException("재능 ID가 일치하지 않습니다.");
+        }
+
+        // 2) 재능 소유자가 맞는지 검증
+        if (!request.getTalent().getUser().getId().equals(ownerId)) {
+            throw new RuntimeException("이 재능을 관리할 권한이 없습니다.");
+        }
+
+        // 3) 상태 변경
+        request.accept();
+
+        // 4) 저장
+        talentRequestRepository.save(request);
+    }
+
+    @Override
+    public void rejectRequest(Long talentId, Long requestId, Long ownerId) {
+
+        TalentRequest request = talentRequestRepository.findById(requestId)
+                .orElseThrow(() -> new RuntimeException("요청을 찾을 수 없습니다."));
+
+        if (!request.getTalent().getId().equals(talentId)) {
+            throw new RuntimeException("재능 ID가 일치하지 않습니다.");
+        }
+
+        if (!request.getTalent().getUser().getId().equals(ownerId)) {
+            throw new RuntimeException("이 재능을 관리할 권한이 없습니다.");
+        }
+
+        request.reject();
+        talentRequestRepository.save(request);
+    }
+
+
+
     private TalentRequestResponseDTO entityToDto(TalentRequest entity) {
         return TalentRequestResponseDTO.builder()
                 .id(entity.getId())

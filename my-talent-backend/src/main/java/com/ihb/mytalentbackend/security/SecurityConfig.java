@@ -1,3 +1,4 @@
+// src/main/java/com/ihb/mytalentbackend/security/SecurityConfig.java
 package com.ihb.mytalentbackend.security;
 
 import com.ihb.mytalentbackend.security.jwt.JwtAuthorizationFilter;
@@ -27,27 +28,30 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         http
-                // CSRF 비활성화 (JWT 사용)
                 .csrf(AbstractHttpConfigurer::disable)
-
-                // ✅ CORS 활성화 (Spring MVC 설정/WebConfig와 연동)
                 .cors(Customizer.withDefaults())
-
-                // 세션 사용 안 함
                 .sessionManagement(s ->
                         s.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
+                // SecurityConfig.java 안 authorizeHttpRequests 부분
 
-                // 권한 설정
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/talents", "/api/talents/**").permitAll()
 
+                        // 피드백 조회는 모두 허용
+                        .requestMatchers(HttpMethod.GET, "/api/talents/*/feedback").permitAll()
+
+                        // 🔥 신청 목록은 반드시 로그인 필요
+                        .requestMatchers(HttpMethod.GET, "/api/talents/*/requests").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/talents/*/requests").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/talents/*/requests/*/accept").authenticated()
+
+                        // 그 외 /api/talents/** 는 기본적으로 인증 필요
                         .requestMatchers("/api/talents/**").authenticated()
+
                         .anyRequest().authenticated()
                 )
 
-                // JWT 필터 추가
                 .addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

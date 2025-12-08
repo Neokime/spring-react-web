@@ -13,7 +13,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByEmail(String email);
 
+    Optional<User> findByUserId(String userId);
+
     @Modifying
     @Query("update User u set u.role = :role where u.email = :email")
     int updateUserRole(@Param("email") String email, @Param("role") Role role);
+
+    String Id(Long id);
 }

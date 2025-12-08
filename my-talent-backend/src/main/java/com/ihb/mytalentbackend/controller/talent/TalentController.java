@@ -8,7 +8,7 @@ import com.ihb.mytalentbackend.service.UserService;
 import com.ihb.mytalentbackend.service.talent.TalentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.User;   // 🔹 스프링 기본 User
+import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 public class TalentController {
 
     private final TalentService talentService;
-    private final UserService userService;   // 🔹 추가: email로 User 찾기용
+    private final UserService userService;
 
     // 생성
     @PostMapping

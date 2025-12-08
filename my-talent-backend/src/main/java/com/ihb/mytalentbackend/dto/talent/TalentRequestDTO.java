@@ -11,5 +11,5 @@ public class TalentRequestDTO {
     private String category;
     private String description;
     private Integer creditPerHour;
-    private String status; // 예: "OPEN", "CLOSED"
+    private String status;
 }

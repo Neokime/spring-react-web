@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react'; // 👈 useEffect 추가
 import { Link, useNavigate } from 'react-router-dom';
 import { loginService } from '../../services/auth.service';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -7,55 +7,57 @@ import useUserStore from '../../store/useUserStroe';
 
 const Login = () => {
   const [form, setForm] = useState({
-    email: '',
+    userId: '',
     password: '',
   });
+
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
+  const currentUser = useUserStore((state) => state.user);     // 👈 현재 유저
   const setCurrentUser = useUserStore((state) => state.setCurrentUser);
   const navigate = useNavigate();
 
-  // input 변경 처리
+  // ✅ 이미 로그인 상태면 /talents 로 보내기
+  useEffect(() => {
+    if (currentUser?.id) {
+      navigate('/talents');
+    }
+  }, [currentUser, navigate]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-
     setForm((prev) => ({
       ...prev,
       [name]: value,
     }));
   };
 
-  // 로그인 처리
   const handleLogin = async (e) => {
     e.preventDefault();
     setSubmitted(true);
 
-    if (!form.email || !form.password) return;
+    if (!form.userId || !form.password) return;
 
     setLoading(true);
 
     try {
       const response = await loginService(form);
-
-      console.log("로그인 응답:", response.data);
-
-      // 백엔드 응답은 User 객체 전체를 그대로 반환하므로
       const user = response.data;
 
-      // Zustand 저장
       setCurrentUser({
         id: user.id,
+        userId: user.userId,
         email: user.email,
         nickname: user.nickname,
-        token: user.token,     // ← 백엔드 User 엔티티의 token 필드명에 맞춰 수정
+        token: user.token,
       });
 
       navigate('/talents');
     } catch (error) {
       console.error(error);
-      setErrorMessage('이메일 또는 비밀번호가 올바르지 않습니다.');
+      setErrorMessage('아이디 또는 비밀번호가 올바르지 않습니다.');
     } finally {
       setLoading(false);
     }
@@ -70,17 +72,17 @@ const Login = () => {
 
         <form onSubmit={handleLogin} noValidate className={submitted ? 'was-validated' : ''}>
           <div className="form-group my-2">
-            <label htmlFor="email">이메일</label>
+            <label htmlFor="userId">아이디</label>
             <input
-              type="email"
-              name="email"
+              type="text"
+              name="userId"
               className="form-control"
-              placeholder="이메일"
-              value={form.email}
+              placeholder="아이디를 입력하세요"
+              value={form.userId}
               onChange={handleChange}
               required
             />
-            <div className="invalid-feedback">이메일을 입력해주세요</div>
+            <div className="invalid-feedback">아이디를 입력해주세요</div>
           </div>
 
           <div className="form-group my-2">
@@ -89,7 +91,7 @@ const Login = () => {
               type="password"
               name="password"
               className="form-control"
-              placeholder="비밀번호"
+              placeholder="비밀번호를 입력하세요"
               value={form.password}
               onChange={handleChange}
               required
