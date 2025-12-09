@@ -4,6 +4,7 @@ package com.ihb.mytalentbackend.controller.talent;
 import com.ihb.mytalentbackend.dto.talent.TalentFeedbackDTO;
 import com.ihb.mytalentbackend.service.talent.TalentFeedbackService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,7 +16,7 @@ public class TalentFeedbackController {
 
     private final TalentFeedbackService feedbackService;
 
-    // 피드백 등록
+    // 등록
     @PostMapping
     public TalentFeedbackDTO createFeedback(
             @PathVariable Long talentId,
@@ -25,10 +26,30 @@ public class TalentFeedbackController {
         return feedbackService.createTalentFeedback(dto);
     }
 
-    // 피드백 목록 조회
+    // 조회
     @GetMapping
     public List<TalentFeedbackDTO> getFeedbacks(@PathVariable Long talentId) {
         return feedbackService.getFeedbacksByTalentId(talentId);
     }
-}
 
+    // 수정
+    @PutMapping("/{feedbackId}")
+    public ResponseEntity<Void> updateFeedback(
+            @PathVariable Long talentId,
+            @PathVariable Long feedbackId,
+            @RequestBody TalentFeedbackDTO dto
+    ) {
+        feedbackService.updateFeedback(feedbackId, dto.getContent(), dto.getRating());
+        return ResponseEntity.ok().build();
+    }
+
+
+    // 삭제
+    @DeleteMapping("/{feedbackId}")
+    public void deleteFeedback(
+            @PathVariable Long talentId,
+            @PathVariable Long feedbackId
+    ) {
+        feedbackService.deleteFeedback(feedbackId);
+    }
+}

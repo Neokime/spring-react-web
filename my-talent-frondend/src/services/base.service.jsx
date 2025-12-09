@@ -10,7 +10,7 @@ const api = axios.create({
 api.interceptors.request.use((config) => {
   const { user } = useUserStore.getState();
 
-  // 🔹 여기를 살짝 변경: 여러 이름 중 하나라도 있으면 토큰으로 사용
+  
   const token =
     user?.token ||
     user?.accessToken ||   // 백엔드 응답이 accessToken 으로 올 때
@@ -29,6 +29,9 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     const { user, clearCurrentUser } = useUserStore.getState();
+
+    console.log("🟡 interceptor user:", user);
+   
 
     // 🔹 위와 동일한 기준으로 토큰 존재 여부 판단
     const token =
@@ -52,6 +55,9 @@ api.interceptors.response.use(
 
 export const authHeader = () => {
   const { user } = useUserStore.getState();
+
+  
+
 
   const token =
     user?.token ||

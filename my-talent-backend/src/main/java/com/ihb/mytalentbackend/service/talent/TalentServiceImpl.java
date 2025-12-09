@@ -1,12 +1,14 @@
 package com.ihb.mytalentbackend.service.talent;
 
 import com.ihb.mytalentbackend.domain.User;
+import com.ihb.mytalentbackend.domain.UploadFile;          // ⭐ 추가
 import com.ihb.mytalentbackend.domain.talent.TalentBoard;
 import com.ihb.mytalentbackend.dto.common.PageRequestDTO;
 import com.ihb.mytalentbackend.dto.common.PageResponseDTO;
 import com.ihb.mytalentbackend.dto.talent.TalentRequestDTO;
 import com.ihb.mytalentbackend.dto.talent.TalentResponseDTO;
 import com.ihb.mytalentbackend.repository.UserRepository;
+import com.ihb.mytalentbackend.repository.UploadFileRepository;   // ⭐ 추가
 import com.ihb.mytalentbackend.repository.talent.TalentRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,7 @@ public class TalentServiceImpl implements TalentService {
 
     private final TalentRepository talentRepository;
     private final UserRepository userRepository;
+    private final UploadFileRepository uploadFileRepository;
 
     // ========== CREATE (등록) ==========
     @Override
@@ -31,6 +34,14 @@ public class TalentServiceImpl implements TalentService {
                 .orElseThrow(() -> new RuntimeException("유저 없음"));
 
         TalentBoard entity = dtoToEntity(request, user);
+
+        // ⭐ 썸네일 설정 (thumbnailId가 넘어온 경우)
+        if (request.getThumbnailId() != null) {
+            UploadFile thumbnail = uploadFileRepository.findById(request.getThumbnailId())
+                    .orElseThrow(() -> new RuntimeException("썸네일 파일을 찾을 수 없습니다."));
+            entity.setThumbnail(thumbnail);
+        }
+
         TalentBoard saved = talentRepository.save(entity);
 
         return entityToDto(saved);
@@ -83,6 +94,13 @@ public class TalentServiceImpl implements TalentService {
         entity.setCreditPerHour(request.getCreditPerHour());
         entity.setStatus(request.getStatus());
 
+        // ⭐ 썸네일 변경 (옵션)
+        if (request.getThumbnailId() != null) {
+            UploadFile thumbnail = uploadFileRepository.findById(request.getThumbnailId())
+                    .orElseThrow(() -> new RuntimeException("썸네일 파일을 찾을 수 없습니다."));
+            entity.setThumbnail(thumbnail);
+        }
+
         // dirty checking으로 자동 반영
         return entityToDto(entity);
     }
@@ -112,6 +130,7 @@ public class TalentServiceImpl implements TalentService {
                 .description(dto.getDescription())
                 .creditPerHour(dto.getCreditPerHour())
                 .status(dto.getStatus())
+                // 썸네일은 여기서 안 건드리고 create/update에서 별도 처리
                 .build();
     }
 
@@ -127,6 +146,13 @@ public class TalentServiceImpl implements TalentService {
                 .status(entity.getStatus())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
+
+                .thumbnailId(
+                        entity.getThumbnail() != null ? entity.getThumbnail().getId() : null
+                )
+                .thumbnailUrl(
+                        entity.getThumbnail() != null ? entity.getThumbnail().getUrl() : null
+                )
                 .build();
     }
 }

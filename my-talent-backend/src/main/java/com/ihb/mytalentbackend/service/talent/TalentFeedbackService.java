@@ -11,4 +11,8 @@ public interface TalentFeedbackService {
 
     // 특정 재능 글에 달린 피드백 목록 조회 (필요하면 사용)
     List<TalentFeedbackDTO> getFeedbacksByTalentId(Long talentId);
+
+    void updateFeedback(Long feedbackId, String content, int rating);
+
+    void deleteFeedback(Long feedbackId);
 }

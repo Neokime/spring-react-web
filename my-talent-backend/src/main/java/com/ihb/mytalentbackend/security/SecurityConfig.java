@@ -16,6 +16,11 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -29,32 +34,54 @@ public class SecurityConfig {
 
         http
                 .csrf(AbstractHttpConfigurer::disable)
-                .cors(Customizer.withDefaults())
-                .sessionManagement(s ->
-                        s.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
-                // SecurityConfig.java 안 authorizeHttpRequests 부분
+                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+                // 🔥 Spring Security CORS 확실하게 활성화
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
 
-                        // 피드백 조회는 모두 허용
+                        // 🔽 피드백 조회는 공개
                         .requestMatchers(HttpMethod.GET, "/api/talents/*/feedback").permitAll()
 
-                        // 🔥 신청 목록은 반드시 로그인 필요
+                        // 🔽 재능 신청은 인증 필요
                         .requestMatchers(HttpMethod.GET, "/api/talents/*/requests").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/talents/*/requests").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/talents/*/requests/*/accept").authenticated()
 
-                        // 그 외 /api/talents/** 는 기본적으로 인증 필요
+                        // 🔽 재능 CRUD는 인증 필요
                         .requestMatchers("/api/talents/**").authenticated()
+
+                        // 🔽 파일 업로드만 추가하면 끝!
+                        .requestMatchers(HttpMethod.POST, "/api/upload").authenticated()
+
+                        // 🔽 업로드된 파일 접근 허용
+                        .requestMatchers("/api/files/**").permitAll()
 
                         .anyRequest().authenticated()
                 )
 
+
                 .addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
+    }
+
+
+    // 🔥 CORS 설정 추가 (Authorization 헤더 허용)
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOrigins(List.of("http://localhost:5173"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+        config.setAllowCredentials(true);
+        config.setExposedHeaders(List.of("Authorization"));
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return source;
     }
 
     @Bean

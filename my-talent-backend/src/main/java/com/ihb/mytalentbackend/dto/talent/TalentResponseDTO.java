@@ -18,4 +18,8 @@ public class TalentResponseDTO {
     private String status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    private Long thumbnailId;
+    private String thumbnailUrl;
+
 }

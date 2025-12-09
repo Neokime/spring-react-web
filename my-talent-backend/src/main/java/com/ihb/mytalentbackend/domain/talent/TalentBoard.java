@@ -1,6 +1,7 @@
 package com.ihb.mytalentbackend.domain.talent;
 
 import com.ihb.mytalentbackend.domain.BaseEntity;
+import com.ihb.mytalentbackend.domain.UploadFile;
 import com.ihb.mytalentbackend.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -36,5 +37,11 @@ public class TalentBoard extends BaseEntity {
 
     @Column(nullable = false)
     private String status;
+
+    // Thumbnail 추가
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "thumbnail_file_id")
+    private UploadFile thumbnail;
+
 }
 

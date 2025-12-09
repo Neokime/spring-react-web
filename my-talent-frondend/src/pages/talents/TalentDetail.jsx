@@ -5,55 +5,58 @@ import talentService from "../../services/talent.service";
 import useUserStore from "../../store/useUserStroe";
 import { Modal } from "react-bootstrap";
 import "./talent.css";
+
 import {
   getTalentFeedbacks,
   createTalentFeedback,
+  updateTalentFeedback,
+  deleteTalentFeedback,
 } from "../../services/talentFeedback.service";
+
 import talentRequestService from "../../services/talentRequest.service";
+import uploadService from "../../services/upload.service"; // ⭐ 파일 업로드 서비스
 
 const TalentDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
   const [data, setData] = useState(null);
+  const user = useUserStore((state) => state.user);
 
   // 삭제 모달
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  const user = useUserStore((state) => state.user);
-
-  // 피드백 관련 상태
+  // ----- 피드백 상태 -----
   const [feedbacks, setFeedbacks] = useState([]);
   const [rating, setRating] = useState(5);
   const [content, setContent] = useState("");
   const [feedbackError, setFeedbackError] = useState("");
+  const [editingFeedbackId, setEditingFeedbackId] = useState(null);
 
-  // 재능 신청 관련 상태 (신청하기 모달)
+  // ----- 재능 신청 상태 -----
   const [showRequestModal, setShowRequestModal] = useState(false);
   const [requestHours, setRequestHours] = useState(1);
   const [requestMessage, setRequestMessage] = useState("");
   const [requestError, setRequestError] = useState("");
-
-  // 내 재능에 들어온 신청 목록
   const [requests, setRequests] = useState([]);
   const [requestListError, setRequestListError] = useState("");
 
-  // userId가 data.userId 또는 data.user.id 둘 중 하나일 수 있으니 둘 다 지원
-  const ownerId = data?.userId ?? data?.user?.id;
-  const isOwner = user && ownerId && Number(user.id) === Number(ownerId);
+  // ----- 썸네일 업로드 상태 -----
+  const [uploading, setUploading] = useState(false);
 
+  const ownerId = data?.userId ?? data?.user?.id;
+  const isOwner = user && Number(user.id) === Number(ownerId);
+
+  // ================= 초기 데이터 로드 =================
   useEffect(() => {
-    // 재능 상세
     talentService
       .getTalent(id)
       .then((res) => setData(res.data))
-      .catch((err) => console.log(err));
+      .catch(console.log);
 
-    // 피드백 목록
     loadFeedbacks(id);
   }, [id]);
 
-  // data + isOwner 가 결정된 뒤에 신청 목록 로드
   useEffect(() => {
     if (data && isOwner) {
       loadRequests(id);
@@ -63,7 +66,7 @@ const TalentDetailPage = () => {
   const loadFeedbacks = (talentId) => {
     getTalentFeedbacks(talentId)
       .then((res) => setFeedbacks(res.data))
-      .catch((err) => console.log(err));
+      .catch(console.log);
   };
 
   const loadRequests = (talentId) => {
@@ -71,112 +74,167 @@ const TalentDetailPage = () => {
     talentRequestService
       .getRequestsForTalent(talentId)
       .then((res) => setRequests(res.data))
-      .catch((err) => {
-        console.log(err);
-        setRequestListError("신청 목록을 불러오는 중 오류가 발생했습니다.");
-      });
+      .catch(() => setRequestListError("신청 목록을 불러오는 중 오류"));
   };
 
+  // ================= 재능 삭제 =================
   const handleDelete = () => {
     talentService
       .deleteTalent(id)
-      .then(() => {
-        alert("삭제 완료");
-        navigate("/talents");
-      })
-      .catch((err) => {
-        console.log(err);
-        alert("삭제 실패");
-      });
+      .then(() => navigate("/talents"))
+      .catch(() => alert("삭제 실패"));
   };
 
+  // ================= 피드백 등록 + 수정 =================
   const handleFeedbackSubmit = async (e) => {
     e.preventDefault();
     setFeedbackError("");
 
-    if (!user) {
-      setFeedbackError("로그인 후 이용 가능합니다.");
-      return;
-    }
-
-    if (!content.trim()) {
-      setFeedbackError("내용을 입력해주세요.");
-      return;
-    }
+    if (!user) return setFeedbackError("로그인이 필요합니다.");
+    if (!content.trim()) return setFeedbackError("내용을 입력하세요.");
 
     try {
-      await createTalentFeedback(id, {
-        userId: user.id,
-        rating,
-        content,
-      });
+      if (editingFeedbackId) {
+        // 수정
+        await updateTalentFeedback(id, editingFeedbackId, {
+          content,
+          rating,
+        });
+        setEditingFeedbackId(null);
+      } else {
+        // 새 피드백 작성
+        await createTalentFeedback(id, {
+          userId: user.id,
+          rating,
+          content,
+        });
+      }
+
       setContent("");
       setRating(5);
       loadFeedbacks(id);
-    } catch (error) {
-      console.error(error);
-      setFeedbackError("피드백 등록 중 오류가 발생했습니다.");
+    } catch (err) {
+      console.error(err);
+      setFeedbackError("피드백 처리 중 오류 발생");
     }
   };
 
-  // 🔹 재능 신청 제출
+  const handleEditFeedback = (fb) => {
+    setEditingFeedbackId(fb.id);
+    setContent(fb.content);
+    setRating(fb.rating);
+  };
+
+  const handleDeleteFeedback = async (feedbackId) => {
+    if (!window.confirm("정말 삭제하시겠습니까?")) return;
+
+    try {
+      await deleteTalentFeedback(id, feedbackId);
+      loadFeedbacks(id);
+    } catch (err) {
+      console.error(err);
+      alert("삭제 실패");
+    }
+  };
+
+  // ================= 재능 신청 =================
   const handleRequestSubmit = async (e) => {
     e.preventDefault();
     setRequestError("");
 
-    if (!user) {
-      setRequestError("로그인 후 이용 가능합니다.");
-      return;
-    }
-
-    if (!requestHours || requestHours <= 0) {
-      setRequestError("신청 시간(hours)은 1 이상이어야 합니다.");
-      return;
-    }
+    if (!user) return setRequestError("로그인이 필요합니다.");
 
     try {
       await talentRequestService.createRequest(id, {
-        userId: user.id, // DTO로 같이 전송
+        userId: user.id,
         message: requestMessage,
         hours: requestHours,
       });
 
-      alert("재능 신청이 완료되었습니다.");
+      alert("신청 완료");
       setShowRequestModal(false);
       setRequestMessage("");
       setRequestHours(1);
-    } catch (error) {
-      console.error(error);
-      setRequestError("재능 신청 중 오류가 발생했습니다.");
+    } catch (err) {
+      console.error(err);
+      setRequestError("신청 처리 중 오류");
     }
   };
 
-  // 🔹 신청 수락
   const handleAccept = async (requestId) => {
     try {
       await talentRequestService.acceptRequest(id, requestId);
-      alert("신청을 수락했습니다.");
       loadRequests(id);
-    } catch (error) {
-      console.error(error);
-      alert("신청 수락 중 오류가 발생했습니다.");
+    } catch (err) {
+      console.error(err);
+      alert("수락 실패");
+    }
+  };
+
+  // ================= 썸네일 변경 =================
+  const handleChangeThumbnail = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    try {
+      setUploading(true);
+
+      // 1) 파일 업로드
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await uploadService.uploadFile(formData);
+      const thumbnailId = res.data.id; // 백엔드에서 id 로 내려온다고 가정
+
+      // 2) 현재 재능 + thumbnailId 로 수정
+      await talentService.updateTalent(id, {
+        title: data.title,
+        category: data.category,
+        description: data.description,
+        creditPerHour: data.creditPerHour,
+        status: data.status,
+        thumbnailId,
+      });
+
+      // 3) 다시 상세 조회
+      const detailRes = await talentService.getTalent(id);
+      setData(detailRes.data);
+
+      alert("썸네일이 변경되었습니다.");
+    } catch (err) {
+      console.error(err);
+      alert("썸네일 변경 중 오류가 발생했습니다.");
+    } finally {
+      setUploading(false);
+      e.target.value = "";
     }
   };
 
   if (!data) return <div>Loading...</div>;
 
+  // ================= 렌더링 =================
   return (
     <div className="container mt-4">
       <h1>재능 상세 페이지</h1>
 
-      <h2>{data.title}</h2>
+      {/* 썸네일 이미지 */}
+      {data.thumbnailUrl && (
+        <div className="mb-3">
+          <img
+            src={data.thumbnailUrl}
+            alt="썸네일"
+            style={{ maxWidth: "300px", borderRadius: "8px" }}
+          />
+        </div>
+      )}
 
+      <h2>{data.title}</h2>
       <p>카테고리: {data.category}</p>
       <p>설명: {data.description}</p>
       <p>크레딧: {data.creditPerHour}</p>
       <p>상태: {data.status}</p>
 
-      {/* 소유자일 때: 수정/삭제 버튼 */}
+      {/* ----- 소유자만 수정/삭제/썸네일 변경 ----- */}
       {isOwner && (
         <div className="mt-3">
           <button
@@ -187,15 +245,33 @@ const TalentDetailPage = () => {
           </button>
 
           <button
-            className="btn btn-danger"
+            className="btn btn-danger me-2"
             onClick={() => setShowDeleteModal(true)}
           >
             삭제
           </button>
+
+          {/* 숨겨진 파일 input */}
+          <input
+            type="file"
+            accept="image/*"
+            id="thumbnailInput"
+            style={{ display: "none" }}
+            onChange={handleChangeThumbnail}
+          />
+
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={() => document.getElementById("thumbnailInput").click()}
+            disabled={uploading}
+          >
+            {uploading ? "썸네일 업로드 중..." : "썸네일 변경"}
+          </button>
         </div>
       )}
 
-      {/* 소유자가 아니고 로그인한 경우: 재능 신청 버튼 */}
+      {/* ----- 재능 신청 버튼 (소유자 X + 로그인 O) ----- */}
       {!isOwner && user && (
         <div className="mt-3">
           <button
@@ -207,10 +283,10 @@ const TalentDetailPage = () => {
         </div>
       )}
 
-      {/* 🔻 (소유자용) 들어온 재능 신청 목록 */}
+      {/* ----- 들어온 재능 신청 목록 (소유자만) ----- */}
       {isOwner && (
         <>
-          <hr className="my-4" />
+          <hr />
           <h3>들어온 재능 신청</h3>
 
           {requestListError && (
@@ -222,17 +298,14 @@ const TalentDetailPage = () => {
           ) : (
             <ul className="list-group mb-3">
               {requests.map((req) => (
-                <li
-                  key={req.id}
-                  className="list-group-item d-flex justify-content-between align-items-start"
-                >
+                <li key={req.id} className="list-group-item">
                   <div>
                     <div>
-                      <strong>신청자 ID:</strong> {req.requesterId}
+                      <strong>신청자:</strong> {req.requesterId}
                     </div>
                     <div>
-                      <strong>시간:</strong> {req.hours}시간 /{" "}
-                      <strong>총 크레딧:</strong> {req.totalCredits}
+                      <strong>시간:</strong> {req.hours}시간 / 총{" "}
+                      {req.totalCredits} 크레딧
                     </div>
                     {req.message && <div>메시지: {req.message}</div>}
                     <div>상태: {req.status}</div>
@@ -240,7 +313,7 @@ const TalentDetailPage = () => {
 
                   {req.status === "PENDING" && (
                     <button
-                      className="btn btn-sm btn-success ms-3"
+                      className="btn btn-success btn-sm mt-2"
                       onClick={() => handleAccept(req.id)}
                     >
                       수락
@@ -253,37 +326,49 @@ const TalentDetailPage = () => {
         </>
       )}
 
-      {/* 피드백 영역 */}
-      <hr className="my-4" />
+      {/* ----- 피드백 리스트 ----- */}
+      <hr />
       <h3>피드백</h3>
 
-      {/* 피드백 리스트 */}
       {feedbacks.length === 0 ? (
         <p>아직 등록된 피드백이 없습니다.</p>
       ) : (
         <ul className="list-group mb-3">
           {feedbacks.map((fb) => (
             <li key={fb.id} className="list-group-item">
-              <div>
-                <strong>{fb.nickname}</strong> ({fb.rating}점)
-              </div>
+              <strong>{fb.nickname}</strong> ({fb.rating}점)
               <div>{fb.content}</div>
-              {fb.createdAt && (
-                <small className="text-muted">작성일: {fb.createdAt}</small>
+
+              {user && Number(user.id) === Number(fb.userId) && (
+                <div className="mt-2">
+                  <button
+                    className="btn btn-warning btn-sm me-2"
+                    onClick={() => handleEditFeedback(fb)}
+                  >
+                    수정
+                  </button>
+                  <button
+                    className="btn btn-danger btn-sm"
+                    onClick={() => handleDeleteFeedback(fb.id)}
+                  >
+                    삭제
+                  </button>
+                </div>
               )}
             </li>
           ))}
         </ul>
       )}
 
-      {/* 피드백 작성 폼 */}
+      {/* ----- 피드백 작성/수정 폼 ----- */}
       {user ? (
-        <form onSubmit={handleFeedbackSubmit} className="mb-4">
+        <form onSubmit={handleFeedbackSubmit}>
           {feedbackError && (
-            <div className="alert alert-danger py-1">{feedbackError}</div>
+            <div className="alert alert-danger">{feedbackError}</div>
           )}
+
           <div className="mb-2">
-            <label className="form-label">평점 (1~5)</label>
+            <label>평점</label>
             <input
               type="number"
               min="1"
@@ -293,8 +378,9 @@ const TalentDetailPage = () => {
               onChange={(e) => setRating(Number(e.target.value))}
             />
           </div>
+
           <div className="mb-2">
-            <label className="form-label">피드백 내용</label>
+            <label>내용</label>
             <textarea
               className="form-control"
               rows="3"
@@ -302,41 +388,20 @@ const TalentDetailPage = () => {
               onChange={(e) => setContent(e.target.value)}
             />
           </div>
-          <button type="submit" className="btn btn-primary">
-            피드백 남기기
+
+          <button className="btn btn-primary" type="submit">
+            {editingFeedbackId ? "수정 완료" : "피드백 남기기"}
           </button>
         </form>
       ) : (
-        <p className="text-muted">피드백을 남기려면 로그인해주세요.</p>
+        <p className="text-muted">로그인 후 작성 가능합니다.</p>
       )}
 
-      {/* 삭제 모달 */}
-      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>삭제 확인</Modal.Title>
-        </Modal.Header>
-
-        <Modal.Body>정말 삭제하시겠습니까?</Modal.Body>
-
-        <Modal.Footer>
-          <button
-            className="btn btn-secondary"
-            onClick={() => setShowDeleteModal(false)}
-          >
-            취소
-          </button>
-          <button className="btn btn-danger" onClick={handleDelete}>
-            삭제
-          </button>
-        </Modal.Footer>
-      </Modal>
-
-      {/* 재능 신청 모달 */}
+      {/* ----- 재능 신청 모달 ----- */}
       <Modal show={showRequestModal} onHide={() => setShowRequestModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>재능 신청하기</Modal.Title>
         </Modal.Header>
-
         <Modal.Body>
           {requestError && (
             <div className="alert alert-danger py-1">{requestError}</div>
@@ -369,6 +434,25 @@ const TalentDetailPage = () => {
             </button>
           </form>
         </Modal.Body>
+      </Modal>
+
+      {/* ----- 삭제 모달 ----- */}
+      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>삭제 확인</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>정말 삭제하시겠습니까?</Modal.Body>
+        <Modal.Footer>
+          <button
+            className="btn btn-secondary"
+            onClick={() => setShowDeleteModal(false)}
+          >
+            취소
+          </button>
+          <button className="btn btn-danger" onClick={handleDelete}>
+            삭제
+          </button>
+        </Modal.Footer>
       </Modal>
     </div>
   );

@@ -1,4 +1,3 @@
-// src/services/talent.service.jsx (또는 .js 하나만 남기기)
 import api from "./base.service";
 
 const TALENT_API = "/talents";
@@ -6,7 +5,14 @@ const TALENT_API = "/talents";
 class TalentService {
   // 재능 등록
   createTalent(talent) {
-    return api.post(TALENT_API, talent);
+    return api.post(TALENT_API, {
+      title: talent.title,
+      category: talent.category,
+      description: talent.description,
+      creditPerHour: talent.creditPerHour,
+      status: talent.status,
+      thumbnailId: talent.thumbnailId ?? null,   // ⭐ 추가된 부분
+    });
   }
 
   // 재능 상세 조회
@@ -26,7 +32,14 @@ class TalentService {
 
   // 재능 수정
   updateTalent(id, talent) {
-    return api.put(`${TALENT_API}/${id}`, talent);
+    return api.put(`${TALENT_API}/${id}`, {
+      title: talent.title,
+      category: talent.category,
+      description: talent.description,
+      creditPerHour: talent.creditPerHour,
+      status: talent.status,
+      thumbnailId: talent.thumbnailId ?? null,   
+    });
   }
 
   // 재능 삭제

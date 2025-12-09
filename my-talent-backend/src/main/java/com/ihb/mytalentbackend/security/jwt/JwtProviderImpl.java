@@ -1,5 +1,7 @@
 package com.ihb.mytalentbackend.security.jwt;
 
+import com.ihb.mytalentbackend.domain.User;
+import com.ihb.mytalentbackend.repository.UserRepository;
 import com.ihb.mytalentbackend.security.UserPrincipal;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
@@ -19,7 +21,11 @@ import java.util.stream.Collectors;
 
 @Log4j2
 @Component
+@lombok.RequiredArgsConstructor
+
 public class JwtProviderImpl implements JwtProvider {
+
+    private final UserRepository userRepository;
 
     @Value("${app.jwt.secret}")
     private String jwtSecret;
@@ -36,12 +42,13 @@ public class JwtProviderImpl implements JwtProvider {
         Key key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
 
         return Jwts.builder()
-                .setSubject(userPrincipal.getUsername())        // 보통 email/username
-                .claim("roles", authorities)                    // 권한들
+                .setSubject(userPrincipal.getUser().getUserId())  // 🔥 userId 명시
+                .claim("roles", authorities)
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationInMs))
                 .signWith(key, SignatureAlgorithm.HS512)
                 .compact();
     }
+
 
     @Override
     public Authentication getAuthentication(HttpServletRequest request) {
@@ -50,12 +57,23 @@ public class JwtProviderImpl implements JwtProvider {
             return null;
         }
 
-        String username = claims.getSubject();
-        if (username == null) {
-            log.info("JWT subject(username) is null");
+        // 로그인 때 subject 에 userId(로그인 아이디)를 넣었으니까
+        String userId = claims.getSubject();
+        if (userId == null) {
+            log.info("JWT subject(userId) is null");
             return null;
         }
 
+        // 🔥 userId(문자열)로 진짜 User 엔티티를 DB에서 가져온다
+        User user = userRepository.findByUserId(userId).orElse(null);
+
+        if (user == null) {
+            log.warn("JWT userId={} 에 해당하는 유저를 찾을 수 없습니다.", userId);
+            return null;  // 인증 실패로 처리 → 필터가 401/403 처리함
+        }
+
+
+        // roles 클레임에서 권한 뽑기
         String roles = claims.get("roles", String.class);
         Collection<? extends GrantedAuthority> authorities = Collections.emptySet();
 
@@ -66,16 +84,17 @@ public class JwtProviderImpl implements JwtProvider {
                     .collect(Collectors.toSet());
         }
 
-        // 여기서는 username + authorities만 가진 기본 principal 사용
-        org.springframework.security.core.userdetails.User principal =
-                new org.springframework.security.core.userdetails.User(
-                        username,
-                        "", // 패스워드는 필요 없음
-                        authorities
-                );
+        // 🔥 UserPrincipal 에 User 통째로 넣기 (id 포함)
+        UserPrincipal principal = new UserPrincipal(user);
 
-        return new UsernamePasswordAuthenticationToken(principal, null, authorities);
+        return new UsernamePasswordAuthenticationToken(
+                principal,
+                null,
+                authorities
+        );
     }
+
+
 
     @Override
     public boolean isTokenValid(HttpServletRequest request) {

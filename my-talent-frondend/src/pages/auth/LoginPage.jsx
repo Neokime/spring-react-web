@@ -15,11 +15,11 @@ const Login = () => {
   const [submitted, setSubmitted] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  const currentUser = useUserStore((state) => state.user);     // 👈 현재 유저
+  const currentUser = useUserStore((state) => state.user);     
   const setCurrentUser = useUserStore((state) => state.setCurrentUser);
   const navigate = useNavigate();
 
-  // ✅ 이미 로그인 상태면 /talents 로 보내기
+  
   useEffect(() => {
     if (currentUser?.id) {
       navigate('/talents');
@@ -44,6 +44,9 @@ const Login = () => {
 
     try {
       const response = await loginService(form);
+
+      console.log("🚀 login response:", response.data);  // 테스트
+
       const user = response.data;
 
       setCurrentUser({

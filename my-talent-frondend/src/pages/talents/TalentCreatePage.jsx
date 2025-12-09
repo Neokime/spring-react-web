@@ -3,8 +3,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import talentService from "../../services/talent.service";
 import useUserStore from "../../store/useUserStroe";
+import uploadService from "../../services/upload.service"; // ⭐ 추가
 import "./talent.css";
-
 
 const TalentCreatePage = () => {
   const navigate = useNavigate();
@@ -16,7 +16,7 @@ const TalentCreatePage = () => {
       alert("로그인이 필요합니다.");
       navigate("/login");
     }
-  }, [user]);
+  }, [user, navigate]);
 
   // 입력 폼 상태
   const [form, setForm] = useState({
@@ -27,26 +27,50 @@ const TalentCreatePage = () => {
     status: "OPEN",
   });
 
+  // ⭐ 썸네일 관련 상태
+  const [thumbnailFile, setThumbnailFile] = useState(null);
+  const [thumbnailPreview, setThumbnailPreview] = useState(null);
+
   // 입력 변화 반영
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm({ ...form, [name]: value });
   };
 
+  // ⭐ 파일 선택 핸들러
+  const handleThumbnailChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setThumbnailFile(file);
+    setThumbnailPreview(URL.createObjectURL(file)); // 미리보기용
+  };
+
   // 저장 버튼
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    talentService
-      .createTalent(form)
-      .then(() => {
-        alert("재능 등록 완료!");
-        navigate("/talents");
-      })
-      .catch((err) => {
-        console.log(err);
-        alert("등록 실패. 입력 내용을 다시 확인해주세요.");
+    try {
+      let thumbnailId = null;
+
+      // ⭐ 썸네일 파일이 있으면 먼저 업로드
+      if (thumbnailFile) {
+        const uploadRes = await uploadService.upload(thumbnailFile);
+        thumbnailId = uploadRes.data.id; // 백엔드 UploadFileResponseDTO.id
+      }
+
+      // 재능 등록 요청에 thumbnailId 포함해서 전송
+      await talentService.createTalent({
+        ...form,
+        thumbnailId,
       });
+
+      alert("재능 등록 완료!");
+      navigate("/talents");
+    } catch (err) {
+      console.log(err);
+      alert("등록 실패. 입력 내용을 다시 확인해주세요.");
+    }
   };
 
   return (
@@ -54,7 +78,6 @@ const TalentCreatePage = () => {
       <h2 className="mb-4">재능 등록</h2>
 
       <form onSubmit={handleSubmit}>
-
         {/* 제목 */}
         <div className="mb-3">
           <label className="form-label">제목</label>
@@ -126,6 +149,26 @@ const TalentCreatePage = () => {
             <option value="OPEN">OPEN</option>
             <option value="CLOSED">CLOSED</option>
           </select>
+        </div>
+
+        {/* ⭐ 썸네일 업로드 */}
+        <div className="mb-3">
+          <label className="form-label">썸네일 이미지 (선택)</label>
+          <input
+            type="file"
+            className="form-control"
+            accept="image/*"
+            onChange={handleThumbnailChange}
+          />
+          {thumbnailPreview && (
+            <div className="mt-2">
+              <img
+                src={thumbnailPreview}
+                alt="썸네일 미리보기"
+                style={{ maxWidth: "200px", borderRadius: "4px" }}
+              />
+            </div>
+          )}
         </div>
 
         {/* 등록 버튼 */}

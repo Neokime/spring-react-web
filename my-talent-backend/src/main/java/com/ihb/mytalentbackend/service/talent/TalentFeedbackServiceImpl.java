@@ -57,6 +57,26 @@ public class TalentFeedbackServiceImpl implements TalentFeedbackService {
                 .toList();
     }
 
+    @Override
+    public void updateFeedback(Long feedbackId, String content, int rating) {
+        TalentFeedback feedback = feedbackRepository.findById(feedbackId)
+                .orElseThrow(() -> new RuntimeException("피드백을 찾을 수 없습니다."));
+
+        feedback.setContent(content);
+        feedback.setRating(rating);
+
+        feedbackRepository.save(feedback);
+    }
+
+    @Override
+    public void deleteFeedback(Long feedbackId) {
+        if (!feedbackRepository.existsById(feedbackId)) {
+            throw new RuntimeException("피드백을 찾을 수 없습니다.");
+        }
+        feedbackRepository.deleteById(feedbackId);
+    }
+
+
     // ====== 아래가 엔티티 <-> DTO 변환 ======
 
     private TalentFeedback toEntity(TalentFeedbackDTO dto, TalentBoard talent, User user) {

@@ -1,10 +1,9 @@
-// src/pages/talent/TalentList.jsx
+// src/pages/talents/TalentList.jsx
 import React, { useEffect, useState } from "react";
 import talentService from "../../services/talent.service";
-import useUserStore from "../../store/useUserStroe";  
+import useUserStore from "../../store/useUserStroe";
 import { Link } from "react-router-dom";
 import "./talent.css";
-
 
 const TalentListPage = () => {
   const [pageData, setPageData] = useState(null); // PageResponseDTO
@@ -18,7 +17,7 @@ const TalentListPage = () => {
     talentService
       .getTalentList(page, 10)
       .then((res) => {
-        setPageData(res.data); 
+        setPageData(res.data);
         setErrorMessage("");
       })
       .catch((err) => {
@@ -42,10 +41,8 @@ const TalentListPage = () => {
     );
   }
 
- return (
-  <div className="container mt-4 talent-page">
-    
-
+  return (
+    <div className="container mt-4 talent-page">
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h2>재능 목록</h2>
 
@@ -72,11 +69,24 @@ const TalentListPage = () => {
           <div className="row">
             {pageData.dtoList.map((talent) => (
               <div key={talent.id} className="col-md-4 mb-3">
-                {/* 🔹 카드 전체를 상세 페이지로 가는 링크로 변경 */}
+                {/* 카드 전체를 상세 페이지로 가는 링크로 */}
                 <Link
                   to={`/talents/${talent.id}`}
                   className="card h-100 text-decoration-none text-dark"
                 >
+                  {/* ⭐ 썸네일 이미지 (있을 때만) */}
+                  {talent.thumbnailUrl && (
+                    <img
+                      src={talent.thumbnailUrl} // 백엔드에서 제공하는 URL 필드명에 맞게
+                      alt={talent.title}
+                      className="card-img-top"
+                      style={{
+                        objectFit: "cover",
+                        height: "180px",
+                      }}
+                    />
+                  )}
+
                   <div className="card-body d-flex flex-column">
                     <h5 className="card-title">{talent.title}</h5>
                     <h6 className="card-subtitle mb-2 text-muted">

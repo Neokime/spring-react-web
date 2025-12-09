@@ -3,7 +3,7 @@ import api from './base.service';
 
 // 피드백 목록 조회
 export const getTalentFeedbacks = (talentId) => {
-  // 여기서는 /talents/... 만 적어야 최종 /api/talents/... 이 됨
+  
   return api.get(`/talents/${talentId}/feedback`);
 };
 
@@ -11,3 +11,12 @@ export const getTalentFeedbacks = (talentId) => {
 export const createTalentFeedback = (talentId, feedback) => {
   return api.post(`/talents/${talentId}/feedback`, feedback);
 };
+
+export const updateTalentFeedback = (talentId, feedbackId, data) => {
+  return api.put(`/talents/${talentId}/feedback/${feedbackId}`, data);
+};
+
+export const deleteTalentFeedback = (talentId, feedbackId) => {
+  return api.delete(`/talents/${talentId}/feedback/${feedbackId}`);
+};
+
