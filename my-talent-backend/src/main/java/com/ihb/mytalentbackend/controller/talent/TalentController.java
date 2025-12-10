@@ -4,12 +4,12 @@ import com.ihb.mytalentbackend.dto.common.PageRequestDTO;
 import com.ihb.mytalentbackend.dto.common.PageResponseDTO;
 import com.ihb.mytalentbackend.dto.talent.TalentRequestDTO;
 import com.ihb.mytalentbackend.dto.talent.TalentResponseDTO;
-import com.ihb.mytalentbackend.service.UserService;
+import com.ihb.mytalentbackend.security.UserPrincipal;   // ⭐ 추가
 import com.ihb.mytalentbackend.service.talent.TalentService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -17,17 +17,14 @@ import org.springframework.web.bind.annotation.*;
 public class TalentController {
 
     private final TalentService talentService;
-    private final UserService userService;
+    // private final UserService userService;  // ⭐ 이제 안 쓰이면 지워도 됨
 
     // 생성
     @PostMapping
     public TalentResponseDTO create(@RequestBody TalentRequestDTO request,
-                                    @AuthenticationPrincipal User principal) {
+                                    @org.springframework.security.core.annotation.AuthenticationPrincipal UserPrincipal principal) {
 
-        // principal.getUsername() = JwtProviderImpl에서 setSubject(...) 한 값 (email)
-        String email = principal.getUsername();
-        Long userId = userService.findUserByEmail(email).getId();
-
+        Long userId = principal.getUser().getId();  // ⭐ UserPrincipal 에서 바로 id 조회
         return talentService.createTalent(request, userId);
     }
 
@@ -47,22 +44,25 @@ public class TalentController {
     @PutMapping("/{id}")
     public TalentResponseDTO update(@PathVariable Long id,
                                     @RequestBody TalentRequestDTO request,
-                                    @AuthenticationPrincipal User principal) {
+                                    @org.springframework.security.core.annotation.AuthenticationPrincipal UserPrincipal principal) {
 
-        String email = principal.getUsername();
-        Long userId = userService.findUserByEmail(email).getId();
-
+        Long userId = principal.getUser().getId();  // ⭐ 여기서도 동일
         return talentService.updateTalent(id, request, userId);
     }
 
     // 삭제
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id,
-                       @AuthenticationPrincipal User principal) {
+                       @org.springframework.security.core.annotation.AuthenticationPrincipal UserPrincipal principal) {
 
-        String email = principal.getUsername();
-        Long userId = userService.findUserByEmail(email).getId();
-
+        Long userId = principal.getUser().getId();  // ⭐ 동일
         talentService.deleteTalent(id, userId);
     }
+
+    // ⭐ 특정 유저가 등록한 재능 목록 조회
+    @GetMapping("/user/{userId}")
+    public List<TalentResponseDTO> getTalentsByUser(@PathVariable Long userId) {
+        return talentService.getTalentsByUser(userId);
+    }
+
 }

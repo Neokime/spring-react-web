@@ -7,6 +7,7 @@ const api = axios.create({
   baseURL: BASE_API_URL + "/api",
 });
 
+
 api.interceptors.request.use((config) => {
   const { user } = useUserStore.getState();
 

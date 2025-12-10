@@ -1,14 +1,14 @@
 package com.ihb.mytalentbackend.service.talent;
 
 import com.ihb.mytalentbackend.domain.User;
-import com.ihb.mytalentbackend.domain.UploadFile;          // ⭐ 추가
+import com.ihb.mytalentbackend.domain.UploadFile;
 import com.ihb.mytalentbackend.domain.talent.TalentBoard;
 import com.ihb.mytalentbackend.dto.common.PageRequestDTO;
 import com.ihb.mytalentbackend.dto.common.PageResponseDTO;
 import com.ihb.mytalentbackend.dto.talent.TalentRequestDTO;
 import com.ihb.mytalentbackend.dto.talent.TalentResponseDTO;
 import com.ihb.mytalentbackend.repository.UserRepository;
-import com.ihb.mytalentbackend.repository.UploadFileRepository;   // ⭐ 추가
+import com.ihb.mytalentbackend.repository.UploadFileRepository;
 import com.ihb.mytalentbackend.repository.talent.TalentRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -94,14 +94,13 @@ public class TalentServiceImpl implements TalentService {
         entity.setCreditPerHour(request.getCreditPerHour());
         entity.setStatus(request.getStatus());
 
-        // ⭐ 썸네일 변경 (옵션)
+        //  썸네일 변경 (옵션)
         if (request.getThumbnailId() != null) {
             UploadFile thumbnail = uploadFileRepository.findById(request.getThumbnailId())
                     .orElseThrow(() -> new RuntimeException("썸네일 파일을 찾을 수 없습니다."));
             entity.setThumbnail(thumbnail);
         }
 
-        // dirty checking으로 자동 반영
         return entityToDto(entity);
     }
 
@@ -118,6 +117,17 @@ public class TalentServiceImpl implements TalentService {
 
         talentRepository.delete(entity);
     }
+
+    @Override
+    public List<TalentResponseDTO> getTalentsByUser(Long userId) {
+        return talentRepository.findByUser_Id(userId)  // ⭐ 여기 고침
+                .stream()
+                .map(this::entityToDto)
+                .toList();
+    }
+
+
+
 
     // ========== PRIVATE MAPPER (DTO ↔ Entity) ==========
 

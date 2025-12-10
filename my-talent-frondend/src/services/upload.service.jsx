@@ -1,11 +1,12 @@
-// src/services/upload.service.js
 import api from "./base.service";
 
 class UploadService {
   uploadFile(formData) {
-    return api.post("/upload", formData); 
-  }
+  return api.post("/files/upload", formData, {
+    headers: { "Content-Type": "multipart/form-data" }
+  });
 }
 
-const uploadService = new UploadService();
-export default uploadService;
+}
+
+export default new UploadService();

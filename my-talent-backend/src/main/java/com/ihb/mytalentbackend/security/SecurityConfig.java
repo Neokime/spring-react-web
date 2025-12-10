@@ -7,7 +7,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -33,51 +32,58 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         http
+                // 세션 안 씀 + CSRF 끔
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-                // 🔥 Spring Security CORS 확실하게 활성화
+                // CORS
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
+                // 인가 규칙
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
 
-                        // 🔽 피드백 조회는 공개
-                        .requestMatchers(HttpMethod.GET, "/api/talents/*/feedback").permitAll()
+                        // 🔥 여기만 바꾸기
+                        .requestMatchers("/api/admin/**").authenticated()
 
-                        // 🔽 재능 신청은 인증 필요
+                        .requestMatchers(HttpMethod.GET, "/api/talents/*/feedback").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/talents/*/requests").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/talents/*/requests").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/talents/*/requests/*/accept").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/trades/**").permitAll()
 
-                        // 🔽 재능 CRUD는 인증 필요
-                        .requestMatchers("/api/talents/**").authenticated()
+                                // Trade 조회는 전체 허용
+                                .requestMatchers(HttpMethod.GET, "/api/trades/**").permitAll()
 
-                        // 🔽 파일 업로드만 추가하면 끝!
-                        .requestMatchers(HttpMethod.POST, "/api/upload").authenticated()
 
-                        // 🔽 업로드된 파일 접근 허용
-                        .requestMatchers("/api/files/**").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/api/trades/**").authenticated()
+                                .requestMatchers(HttpMethod.PUT, "/api/trades/**").authenticated()
+                                .requestMatchers(HttpMethod.DELETE, "/api/trades/**").authenticated()
 
+
+
+                                .requestMatchers("/api/talents/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/files/upload").authenticated()
+                        .requestMatchers("/uploads/**").permitAll()
                         .anyRequest().authenticated()
                 )
 
 
+                // JWT 필터
                 .addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
-
-    // 🔥 CORS 설정 추가 (Authorization 헤더 허용)
+    // CORS 설정
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of("http://localhost:5173"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+        config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
-        config.setExposedHeaders(List.of("Authorization"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);

@@ -39,6 +39,16 @@ public class AuthenticationController {
     public ResponseEntity<?> signIn(@RequestBody User user) {
 
         User signedIn = authenticationService.signInAndReturnJWT(user);
-        return ResponseEntity.ok(signedIn);
+
+        return ResponseEntity.ok(
+                java.util.Map.of(
+                        "id", signedIn.getId(),
+                        "email", signedIn.getEmail(),
+                        "nickname", signedIn.getNickname(),
+                        "role", signedIn.getRole().name(),
+                        "token", signedIn.getToken()
+                )
+        );
     }
+
 }

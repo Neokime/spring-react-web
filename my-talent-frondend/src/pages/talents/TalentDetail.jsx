@@ -5,6 +5,7 @@ import talentService from "../../services/talent.service";
 import useUserStore from "../../store/useUserStroe";
 import { Modal } from "react-bootstrap";
 import "./talent.css";
+import { BASE_API_URL } from "../../common/constants"; 
 
 import {
   getTalentFeedbacks,
@@ -221,12 +222,13 @@ const TalentDetailPage = () => {
       {data.thumbnailUrl && (
         <div className="mb-3">
           <img
-            src={data.thumbnailUrl}
+            src={`${BASE_API_URL}${data.thumbnailUrl}`}  
             alt="썸네일"
             style={{ maxWidth: "300px", borderRadius: "8px" }}
           />
         </div>
       )}
+
 
       <h2>{data.title}</h2>
       <p>카테고리: {data.category}</p>
@@ -278,7 +280,7 @@ const TalentDetailPage = () => {
             className="btn btn-success"
             onClick={() => setShowRequestModal(true)}
           >
-            재능 신청하기
+            신청하기
           </button>
         </div>
       )}

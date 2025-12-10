@@ -4,6 +4,7 @@ import talentService from "../../services/talent.service";
 import useUserStore from "../../store/useUserStroe";
 import { Link } from "react-router-dom";
 import "./talent.css";
+import { BASE_API_URL } from "../../common/constants";
 
 const TalentListPage = () => {
   const [pageData, setPageData] = useState(null); // PageResponseDTO
@@ -75,17 +76,19 @@ const TalentListPage = () => {
                   className="card h-100 text-decoration-none text-dark"
                 >
                   {/* ⭐ 썸네일 이미지 (있을 때만) */}
-                  {talent.thumbnailUrl && (
-                    <img
-                      src={talent.thumbnailUrl} // 백엔드에서 제공하는 URL 필드명에 맞게
-                      alt={talent.title}
-                      className="card-img-top"
-                      style={{
-                        objectFit: "cover",
-                        height: "180px",
-                      }}
-                    />
-                  )}
+                 {talent.thumbnailUrl && (
+                      <img
+                        src={`${BASE_API_URL}${talent.thumbnailUrl}`}   
+                        alt={talent.title}
+                        className="card-img-top"
+                        style={{
+                          objectFit: "cover",
+                          height: "180px",
+                        }}
+                      />
+                    )}
+
+
 
                   <div className="card-body d-flex flex-column">
                     <h5 className="card-title">{talent.title}</h5>
@@ -95,9 +98,7 @@ const TalentListPage = () => {
                     <p className="card-text flex-grow-1">
                       {talent.description}
                     </p>
-                    <small className="text-muted">
-                      상태: {talent.status}
-                    </small>
+                    <small className="text-muted">상태: {talent.status}</small>
                   </div>
                 </Link>
               </div>

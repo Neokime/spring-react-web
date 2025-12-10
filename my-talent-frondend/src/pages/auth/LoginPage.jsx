@@ -54,8 +54,10 @@ const Login = () => {
         userId: user.userId,
         email: user.email,
         nickname: user.nickname,
+        role: user.role,      // ⭐ 이거 추가!
         token: user.token,
       });
+
 
       navigate('/talents');
     } catch (error) {
