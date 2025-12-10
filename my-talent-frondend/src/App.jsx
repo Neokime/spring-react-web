@@ -14,8 +14,8 @@ import TradeListPage from "./pages/trade/TradeListPage";
 import TradeCreatePage from "./pages/trade/TradeCreatePage";
 import TradeDetailPage from "./pages/trade/TradeDetailPage";
 
-
-
+// ⭐ 스토어 페이지 추가
+import StorePage from "./pages/store/StorePage";
 
 function App() {
   return (
@@ -27,17 +27,21 @@ function App() {
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<Register />} />
+
           <Route path="/admin/users" element={<AdminUserPage />} />
           <Route path="/admin/talents" element={<AdminTalentPage />} />
-
 
           <Route path="/talents" element={<TalentListPage />} />
           <Route path="/talents/create" element={<TalentCreatePage />} />
           <Route path="/talents/:id" element={<TalentDetail />} />
           <Route path="/talents/:id/edit" element={<TalentEditPage />} />
+
           <Route path="/trades" element={<TradeListPage />} />
           <Route path="/trades/create" element={<TradeCreatePage />} />
           <Route path="/trades/:id" element={<TradeDetailPage />} />
+
+          {/* ⭐ 스토어 라우트 */}
+          <Route path="/store" element={<StorePage />} />
 
           <Route path="/profile" element={<Profile />} />
         </Routes>

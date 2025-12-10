@@ -2,7 +2,6 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import logo from "../assets/react.svg";
 
-
 import useUserStore from "../store/useUserStroe";
 import { Role } from "../models/Role";
 
@@ -22,7 +21,6 @@ const Navbar = () => {
   return (
     <nav className="navbar navbar-dark bg-dark">
       <div className="container d-flex align-items-center justify-content-between">
-
         {/* 왼쪽: 로고 */}
         <div className="d-flex align-items-center">
           <NavLink to="/" className="navbar-brand d-flex align-items-center">
@@ -56,6 +54,13 @@ const Navbar = () => {
           <li className="nav-item mx-2">
             <NavLink to="/trades" className="nav-link">
               교환
+            </NavLink>
+          </li>
+
+          {/* ⭐ 스토어 메뉴 추가 */}
+          <li className="nav-item mx-2">
+            <NavLink to="/store" className="nav-link">
+              스토어
             </NavLink>
           </li>
         </ul>
