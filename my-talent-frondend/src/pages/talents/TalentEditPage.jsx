@@ -3,7 +3,8 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import talentService from "../../services/talent.service";
 import useUserStore from "../../store/useUserStroe";
-import "./talent.css";
+import "./talentForm.css";
+
 
 
 const TalentEditPage = () => {
@@ -77,7 +78,7 @@ const TalentEditPage = () => {
   if (loading) return <div className="container mt-4">로딩 중...</div>;
 
   return (
-    <div className="container mt-4" style={{ maxWidth: "700px" }}>
+    <div className="container talent-form-page">
       <h2 className="mb-4">재능 수정</h2>
 
       <form onSubmit={handleSubmit}>

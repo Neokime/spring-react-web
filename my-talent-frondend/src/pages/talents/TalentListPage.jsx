@@ -1,4 +1,4 @@
-// src/pages/talents/TalentList.jsx
+// src/pages/talents/TalentListPage.jsx
 import React, { useEffect, useState } from "react";
 import talentService from "../../services/talent.service";
 import useUserStore from "../../store/useUserStroe";
@@ -7,7 +7,7 @@ import "./talent.css";
 import { BASE_API_URL } from "../../common/constants";
 
 const TalentListPage = () => {
-  const [pageData, setPageData] = useState(null); // PageResponseDTO
+  const [pageData, setPageData] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -21,8 +21,7 @@ const TalentListPage = () => {
         setPageData(res.data);
         setErrorMessage("");
       })
-      .catch((err) => {
-        console.error(err);
+      .catch(() => {
         setErrorMessage("재능 목록을 불러오는데 실패했습니다.");
       })
       .finally(() => {
@@ -50,58 +49,44 @@ const TalentListPage = () => {
         <Link to="/talents/create" className="btn btn-primary">
           재능 등록
         </Link>
+
         {currentUser && (
           <div className="text-muted">
-            안녕하세요,{" "}
-            <strong>{currentUser.nickname || currentUser.email}</strong> 님
+            안녕하세요, <strong>{currentUser.nickname || currentUser.email}</strong> 님
           </div>
         )}
       </div>
 
-      {errorMessage && (
-        <div className="alert alert-danger">{errorMessage}</div>
-      )}
+      {errorMessage && <div className="alert alert-danger">{errorMessage}</div>}
 
       {!pageData || pageData.dtoList.length === 0 ? (
         <div className="alert alert-info">등록된 재능이 없습니다.</div>
       ) : (
         <>
-          {/* 카드 형태 목록 */}
-          <div className="row">
+          {/* 카드 리스트 */}
+          <div className="talent-grid">
             {pageData.dtoList.map((talent) => (
-              <div key={talent.id} className="col-md-4 mb-3">
-                {/* 카드 전체를 상세 페이지로 가는 링크로 */}
-                <Link
-                  to={`/talents/${talent.id}`}
-                  className="card h-100 text-decoration-none text-dark"
-                >
-                  {/* ⭐ 썸네일 이미지 (있을 때만) */}
-                 {talent.thumbnailUrl && (
-                      <img
-                        src={`${BASE_API_URL}${talent.thumbnailUrl}`}   
-                        alt={talent.title}
-                        className="card-img-top"
-                        style={{
-                          objectFit: "cover",
-                          height: "180px",
-                        }}
-                      />
-                    )}
+              <Link
+                key={talent.id}
+                to={`/talents/${talent.id}`}
+                className="talent-card text-decoration-none text-dark"
+              >
+                {talent.thumbnailUrl && (
+                  <img
+                    src={`${BASE_API_URL}${talent.thumbnailUrl}`}
+                    alt={talent.title}
+                  />
+                )}
 
-
-
-                  <div className="card-body d-flex flex-column">
-                    <h5 className="card-title">{talent.title}</h5>
-                    <h6 className="card-subtitle mb-2 text-muted">
-                      {talent.category} · {talent.creditPerHour} 크레딧
-                    </h6>
-                    <p className="card-text flex-grow-1">
-                      {talent.description}
-                    </p>
-                    <small className="text-muted">상태: {talent.status}</small>
-                  </div>
-                </Link>
-              </div>
+                <div className="talent-card-body">
+                  <h5 className="talent-card-title">{talent.title}</h5>
+                  <h6 className="talent-card-subtitle">
+                    {talent.category} · {talent.creditPerHour} 크레딧
+                  </h6>
+                  <p className="talent-card-desc">{talent.description}</p>
+                  <span className="talent-card-status">상태: {talent.status}</span>
+                </div>
+              </Link>
             ))}
           </div>
 
@@ -119,27 +104,19 @@ const TalentListPage = () => {
                 </li>
               )}
 
-              {Array.from(
-                { length: pageData.end - pageData.start + 1 },
-                (_, i) => {
-                  const p = pageData.start + i;
-                  return (
-                    <li
-                      key={p}
-                      className={`page-item ${
-                        p === pageData.page ? "active" : ""
-                      }`}
-                    >
-                      <button
-                        className="page-link"
-                        onClick={() => loadPage(p)}
-                      >
-                        {p}
-                      </button>
-                    </li>
-                  );
-                }
-              )}
+              {Array.from({ length: pageData.end - pageData.start + 1 }, (_, i) => {
+                const p = pageData.start + i;
+                return (
+                  <li
+                    key={p}
+                    className={`page-item ${p === pageData.page ? "active" : ""}`}
+                  >
+                    <button className="page-link" onClick={() => loadPage(p)}>
+                      {p}
+                    </button>
+                  </li>
+                );
+              })}
 
               {pageData.next && (
                 <li className="page-item">

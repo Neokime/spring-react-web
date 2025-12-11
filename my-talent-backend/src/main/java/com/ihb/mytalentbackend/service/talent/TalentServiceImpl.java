@@ -10,6 +10,7 @@ import com.ihb.mytalentbackend.dto.talent.TalentResponseDTO;
 import com.ihb.mytalentbackend.repository.UserRepository;
 import com.ihb.mytalentbackend.repository.UploadFileRepository;
 import com.ihb.mytalentbackend.repository.talent.TalentRepository;
+import com.ihb.mytalentbackend.repository.talent.TalentRequestRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -26,6 +27,7 @@ public class TalentServiceImpl implements TalentService {
     private final TalentRepository talentRepository;
     private final UserRepository userRepository;
     private final UploadFileRepository uploadFileRepository;
+    private final TalentRequestRepository talentRequestRepository;
 
     // ========== CREATE (등록) ==========
     @Override
@@ -107,6 +109,7 @@ public class TalentServiceImpl implements TalentService {
     // ========== DELETE (삭제) ==========
     @Override
     public void deleteTalent(Long id, Long userId) {
+
         TalentBoard entity = talentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("재능 없음"));
 
@@ -115,12 +118,13 @@ public class TalentServiceImpl implements TalentService {
             throw new RuntimeException("삭제 권한 없음");
         }
 
+        talentRequestRepository.deleteByTalentId(id);
         talentRepository.delete(entity);
     }
 
     @Override
     public List<TalentResponseDTO> getTalentsByUser(Long userId) {
-        return talentRepository.findByUser_Id(userId)  // ⭐ 여기 고침
+        return talentRepository.findByUser_Id(userId)
                 .stream()
                 .map(this::entityToDto)
                 .toList();

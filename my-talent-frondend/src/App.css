@@ -1,8 +1,123 @@
-#root {
-  width: 100%;
-  margin: 0;
-  padding: 0;
-  text-align: left; 
+/* ------------------------------
+   전역 컨테이너(중앙 정렬)
+------------------------------ */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
 }
 
-/* 나머지 .logo, .card, .read-the-docs 전부 삭제해도 됨 */
+/* ------------------------------
+   페이지 제목
+------------------------------ */
+.page-title {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 32px;
+  color: #222;
+}
+
+/* ------------------------------
+   카드 공통 스타일
+------------------------------ */
+.card-common {
+  background: #fff;
+  border-radius: 14px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  transition: all 0.2s ease-in-out;
+}
+
+.card-common:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+}
+
+/* ------------------------------
+   섹션 제목
+------------------------------ */
+.section-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 30px 0 16px;
+  color: #333;
+}
+
+/* ------------------------------
+   버튼 스타일
+------------------------------ */
+.btn-primary {
+  background-color: #3B82F6 !important;
+  border: none !important;
+  border-radius: 8px !important;
+  padding: 8px 18px !important;
+  font-weight: 500;
+}
+
+.btn-primary:hover {
+  background-color: #2563EB !important;
+}
+
+.btn-danger {
+  border-radius: 8px !important;
+  padding: 8px 18px !important;
+  font-weight: 500 !important;
+}
+
+/* ------------------------------
+   입력폼 스타일
+------------------------------ */
+input, textarea, select {
+  border-radius: 8px !important;
+  padding: 10px 12px !important;
+  border: 1px solid #ccc;
+}
+
+input:focus, textarea:focus, select:focus {
+  border-color: #3B82F6;
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+  outline: none;
+}
+
+/* ------------------------------
+   피드백(댓글) 영역
+------------------------------ */
+.feedback-box {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.04);
+  margin-bottom: 16px;
+}
+
+/* ------------------------------
+   재능 목록 카드(그리드)
+------------------------------ */
+.talent-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  gap: 24px;
+  margin-top: 20px;
+}
+
+.talent-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.06);
+  transition: 0.2s ease;
+}
+
+.talent-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+}
+
+/* 이미지 스타일 */
+.talent-card img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 12px;
+}

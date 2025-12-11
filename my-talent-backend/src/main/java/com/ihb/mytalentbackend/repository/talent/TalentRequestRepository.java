@@ -10,6 +10,8 @@ import java.util.List;
 public interface TalentRequestRepository extends JpaRepository<TalentRequest, Long> {
     List<TalentRequest> findByRequester(User requester);
     List<TalentRequest> findByTalent(TalentBoard talent);
+    void deleteByTalentId(Long talentId);
+
 }
 
 

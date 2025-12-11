@@ -3,14 +3,14 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import talentService from "../../services/talent.service";
 import useUserStore from "../../store/useUserStroe";
-import uploadService from "../../services/upload.service"; // ⭐ 추가
-import "./talent.css";
+import uploadService from "../../services/upload.service"; 
+import "./talentForm.css";
 
 const TalentCreatePage = () => {
   const navigate = useNavigate();
   const user = useUserStore((state) => state.user);
 
-  // 로그인 안 한 사용자 접근 방지
+  // 로그인 체크
   useEffect(() => {
     if (!user?.id) {
       alert("로그인이 필요합니다.");
@@ -27,39 +27,39 @@ const TalentCreatePage = () => {
     status: "OPEN",
   });
 
-  // ⭐ 썸네일 관련 상태
+  // 썸네일 상태
   const [thumbnailFile, setThumbnailFile] = useState(null);
   const [thumbnailPreview, setThumbnailPreview] = useState(null);
 
-  // 입력 변화 반영
+  // 공통 입력
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm({ ...form, [name]: value });
   };
 
-  // ⭐ 파일 선택 핸들러
+  // 썸네일 선택
   const handleThumbnailChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
     setThumbnailFile(file);
-    setThumbnailPreview(URL.createObjectURL(file)); // 미리보기용
+    setThumbnailPreview(URL.createObjectURL(file));
   };
 
-  // 저장 버튼
+  // 제출
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
       let thumbnailId = null;
 
-      // ⭐ 썸네일 파일이 있으면 먼저 업로드
+      // ⭐ 이미지 업로드 먼저 실행
       if (thumbnailFile) {
-        const uploadRes = await uploadService.upload(thumbnailFile);
-        thumbnailId = uploadRes.data.id; // 백엔드 UploadFileResponseDTO.id
+        const uploadRes = await uploadService.uploadSingle(thumbnailFile);
+        thumbnailId = uploadRes.data.id;  // 업로드 응답에서 id 추출
       }
 
-      // 재능 등록 요청에 thumbnailId 포함해서 전송
+      // ⭐ 재능 생성 요청
       await talentService.createTalent({
         ...form,
         thumbnailId,
@@ -68,13 +68,13 @@ const TalentCreatePage = () => {
       alert("재능 등록 완료!");
       navigate("/talents");
     } catch (err) {
-      console.log(err);
-      alert("등록 실패. 입력 내용을 다시 확인해주세요.");
+      console.error(err);
+      alert("등록 실패. 입력 내용을 확인해주세요.");
     }
   };
 
   return (
-    <div className="container mt-4" style={{ maxWidth: "700px" }}>
+    <div className="container talent-form-page">
       <h2 className="mb-4">재능 등록</h2>
 
       <form onSubmit={handleSubmit}>
@@ -123,7 +123,7 @@ const TalentCreatePage = () => {
           ></textarea>
         </div>
 
-        {/* 시간당 크레딧 */}
+        {/* 시급 */}
         <div className="mb-3">
           <label className="form-label">시간당 비용 (크레딧)</label>
           <input
@@ -171,7 +171,7 @@ const TalentCreatePage = () => {
           )}
         </div>
 
-        {/* 등록 버튼 */}
+        {/* 버튼 */}
         <button type="submit" className="btn btn-primary w-100 mt-3">
           등록하기
         </button>

@@ -4,6 +4,8 @@ import { loginService } from '../../services/auth.service';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUserCircle } from '@fortawesome/free-solid-svg-icons';
 import useUserStore from '../../store/useUserStroe';
+import "./auth.css";
+
 
 const Login = () => {
   const [form, setForm] = useState({
@@ -54,8 +56,9 @@ const Login = () => {
         userId: user.userId,
         email: user.email,
         nickname: user.nickname,
-        role: user.role,      // ⭐ 이거 추가!
+        role: user.role,    
         token: user.token,
+        credit: user.credit ?? 0,
       });
 
 

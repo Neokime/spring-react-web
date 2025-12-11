@@ -1,4 +1,4 @@
-// src/App.jsx
+
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import LoginPage from "./pages/auth/LoginPage";
 import TalentListPage from "./pages/talents/TalentListPage";
@@ -13,8 +13,10 @@ import AdminTalentPage from "./pages/admin/AdminTalentPage";
 import TradeListPage from "./pages/trade/TradeListPage";
 import TradeCreatePage from "./pages/trade/TradeCreatePage";
 import TradeDetailPage from "./pages/trade/TradeDetailPage";
+import "./index.css";
 
-// ⭐ 스토어 페이지 추가
+
+
 import StorePage from "./pages/store/StorePage";
 
 function App() {

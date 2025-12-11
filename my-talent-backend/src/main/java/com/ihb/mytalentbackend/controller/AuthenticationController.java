@@ -46,6 +46,7 @@ public class AuthenticationController {
                         "email", signedIn.getEmail(),
                         "nickname", signedIn.getNickname(),
                         "role", signedIn.getRole().name(),
+                        "credit", signedIn.getCredit(),
                         "token", signedIn.getToken()
                 )
         );

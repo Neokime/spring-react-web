@@ -54,16 +54,19 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/trades/**").permitAll()
 
                                 // Trade 조회는 전체 허용
-                                .requestMatchers(HttpMethod.GET, "/api/trades/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/trades/**").permitAll()
 
 
-                                .requestMatchers(HttpMethod.POST, "/api/trades/**").authenticated()
-                                .requestMatchers(HttpMethod.PUT, "/api/trades/**").authenticated()
-                                .requestMatchers(HttpMethod.DELETE, "/api/trades/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/trades/**").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/api/trades/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/trades/**").authenticated()
+
+                        .requestMatchers("/api/store/**").authenticated()
 
 
 
-                                .requestMatchers("/api/talents/**").authenticated()
+
+                        .requestMatchers("/api/talents/**").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/files/upload").authenticated()
                         .requestMatchers("/uploads/**").permitAll()
                         .anyRequest().authenticated()

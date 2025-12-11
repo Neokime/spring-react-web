@@ -1,74 +1,168 @@
+/* ===========================
+   전체 페이지 래퍼
+=========================== */
+.talent-page {
+  padding: 40px 0;
+}
 
+/* 상단 헤더 영역 (제목 + 버튼 + 인사) */
+.talent-page > .d-flex {
+  margin-bottom: 24px;
+}
+
+.talent-page h2 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #222;
+  margin: 0;
+}
+
+/* "재능 등록" 버튼 (크몽 느낌의 pill 버튼) */
+.talent-page .btn.btn-primary {
+  background-color: #3B82F6;
+  border: none;
+  border-radius: 999px;
+  padding: 8px 20px;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.talent-page .btn.btn-primary:hover {
+  background-color: #2563EB;
+}
+
+/* 인사 텍스트 */
+.talent-page .text-muted {
+  font-size: 14px;
+  color: #6b7280 !important;
+}
+
+.talent-page .text-muted strong {
+  color: #111827;
+}
+
+/* 알림/에러 박스도 약간 둥글게 */
+.talent-page .alert {
+  border-radius: 12px;
+  border: none;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+/* ===========================
+   재능 카드 그리드
+=========================== */
+
+/* 그리드 래퍼 */
+.talent-grid {
+  margin-top: 24px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 24px;
+}
+
+/* 개별 카드 링크 */
+.talent-card {
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 18px;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  text-decoration: none !important;
+  color: #111827;
+}
+
+/* 호버 효과 */
+.talent-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.12);
+}
+
+/* 썸네일 이미지 */
+.talent-card img {
+  width: 100%;
+  height: 180px;
+  border-radius: 12px;
+  object-fit: cover;
+  margin-bottom: 12px;
+}
+
+/* 카드 내용 래퍼 */
+.talent-card-body {
+  display: flex;
+  flex-direction: column;
+}
 
 /* 제목 */
-.talent-page h2 {
-  font-weight: 700;
-  color: #333;
-  margin-bottom: 1.2rem;
-}
-
-/* 카드 스타일 */
-.talent-page .card {
-  border: none;
-  border-radius: 14px;
-  background: white;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  cursor: pointer;
-}
-
-.talent-page .card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
-}
-
-/* 카드 제목 */
-.talent-page .card-title {
-  font-size: 1.2rem;
+.talent-card-title {
+  font-size: 17px;
   font-weight: 600;
-  color: #222;
+  margin-bottom: 6px;
+  color: #111827;
 }
 
-/* 카드 서브 텍스트 */
-.talent-page .card-subtitle {
-  font-size: 0.9rem;
-  color: #6c757d;
+/* 카테고리 · 크레딧 */
+.talent-card-subtitle {
+  font-size: 13px;
+  color: #6b7280;
+  margin-bottom: 10px;
 }
 
-/* 설명 텍스트 */
-.talent-page .card-text {
-  font-size: 0.95rem;
-  color: #444;
+/* 설명 (최대 3줄만 보이게) */
+.talent-card-desc {
+  font-size: 14px;
+  color: #4b5563;
+  margin-bottom: 10px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-/* 상태 표시 */
-.talent-page .small-status {
-  font-size: 0.85rem;
-  color: #888;
-}
-
-/* 재능 등록 버튼 */
-.talent-page .btn-primary {
-  border-radius: 8px;
-  padding: 0.45rem 1.1rem;
+/* 상태 라벨 (맨 아래 정렬) */
+.talent-card-status {
+  font-size: 12px;
   font-weight: 500;
+  color: #059669;
+  margin-top: auto;
 }
 
-/* 페이지네이션 */
+/* ===========================
+   페이지네이션
+=========================== */
 .talent-page .pagination .page-link {
-  border-radius: 6px;
+  border-radius: 999px !important;
   margin: 0 4px;
-  color: #333;
-  border: 1px solid #ddd;
-  transition: background 0.2s ease;
+  padding: 6px 12px;
+  border: none;
+  color: #555;
+  font-size: 14px;
+  background-color: transparent;
+}
+
+.talent-page .pagination .page-item.active .page-link {
+  background-color: #111827;
+  color: #fff;
 }
 
 .talent-page .pagination .page-link:hover {
-  background-color: #e8eef7;
+  background-color: #e5e7eb;
 }
 
-.talent-page .pagination .active .page-link {
-  background-color: #4e73df;
-  color: white;
-  border-color: #4e73df;
+/* ===========================
+   반응형 (모바일)
+=========================== */
+@media (max-width: 768px) {
+  .talent-page {
+    padding: 24px 0;
+  }
+
+  .talent-page h2 {
+    font-size: 22px;
+  }
+
+  .talent-grid {
+    grid-template-columns: 1fr;
+  }
 }

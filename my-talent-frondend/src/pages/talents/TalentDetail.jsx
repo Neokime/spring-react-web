@@ -1,10 +1,10 @@
-// src/pages/talents/TalentDetail.jsx
+
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import talentService from "../../services/talent.service";
 import useUserStore from "../../store/useUserStroe";
 import { Modal } from "react-bootstrap";
-import "./talent.css";
+import "./talentDetail.css";
 import { BASE_API_URL } from "../../common/constants"; 
 
 import {
@@ -15,7 +15,7 @@ import {
 } from "../../services/talentFeedback.service";
 
 import talentRequestService from "../../services/talentRequest.service";
-import uploadService from "../../services/upload.service"; // ⭐ 파일 업로드 서비스
+import uploadService from "../../services/upload.service"; 
 
 const TalentDetailPage = () => {
   const { id } = useParams();
@@ -215,7 +215,7 @@ const TalentDetailPage = () => {
 
   // ================= 렌더링 =================
   return (
-    <div className="container mt-4">
+    <div className="container mt-4 talent-detail-page">
       <h1>재능 상세 페이지</h1>
 
       {/* 썸네일 이미지 */}
@@ -338,7 +338,12 @@ const TalentDetailPage = () => {
         <ul className="list-group mb-3">
           {feedbacks.map((fb) => (
             <li key={fb.id} className="list-group-item">
-              <strong>{fb.nickname}</strong> ({fb.rating}점)
+              <strong>{fb.nickname}</strong>
+              <span className="star-rating-view">
+                  {"★".repeat(fb.rating)}
+                  {"☆".repeat(5 - fb.rating)}
+              </span>
+
               <div>{fb.content}</div>
 
               {user && Number(user.id) === Number(fb.userId) && (
@@ -371,15 +376,20 @@ const TalentDetailPage = () => {
 
           <div className="mb-2">
             <label>평점</label>
-            <input
-              type="number"
-              min="1"
-              max="5"
-              className="form-control"
-              value={rating}
-              onChange={(e) => setRating(Number(e.target.value))}
-            />
+            <div className="star-rating-input">
+              {[1,2,3,4,5].map((value) => (
+                <span
+                  key={value}
+                  onClick={() => setRating(value)}
+                  className={value <= rating ? "star filled" : "star"}
+                >
+                  ★
+                </span>
+              ))}
+            </div>
           </div>
+
+
 
           <div className="mb-2">
             <label>내용</label>

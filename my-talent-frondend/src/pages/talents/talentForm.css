@@ -1,0 +1,98 @@
+/* ============================================
+   공통 폼 레이아웃 (등록/수정 페이지 공용)
+============================================ */
+
+.talent-form-page {
+  padding: 40px 0 60px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+/* 페이지 제목 */
+.talent-form-page h2 {
+  font-size: 26px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 28px;
+}
+
+
+/* ============================================
+   입력 폼 공통 요소
+============================================ */
+
+.talent-form-page .form-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 6px;
+}
+
+.talent-form-page .form-control,
+.talent-form-page .form-select {
+  border-radius: 10px !important;
+  padding: 10px 12px;
+  font-size: 14px;
+  border: 1px solid #d1d5db;
+  background: #fff;
+}
+
+.talent-form-page .form-control:focus,
+.talent-form-page .form-select:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.18);
+}
+
+
+/* ============================================
+   textarea
+============================================ */
+.talent-form-page textarea.form-control {
+  resize: none;
+  min-height: 120px;
+}
+
+
+/* ============================================
+   썸네일 업로드 + 미리보기
+============================================ */
+
+.talent-form-thumbnail-preview img {
+  max-width: 200px;
+  border-radius: 10px;
+  margin-top: 10px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+}
+
+
+/* ============================================
+   제출 버튼
+============================================ */
+
+.talent-form-page .btn-primary {
+  border-radius: 12px;
+  padding: 12px 0;
+  font-weight: 600;
+  font-size: 15px;
+  background-color: #3b82f6;
+  border: none;
+}
+
+.talent-form-page .btn-primary:hover {
+  background-color: #2563eb;
+}
+
+
+/* ============================================
+   반응형
+============================================ */
+
+@media (max-width: 768px) {
+  .talent-form-page {
+    padding: 24px 0 40px;
+  }
+
+  .talent-form-page h2 {
+    font-size: 22px;
+  }
+}

@@ -3,6 +3,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import { registerService } from '../../services/auth.service';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUserCircle } from '@fortawesome/free-solid-svg-icons';
+import "../auth/auth.css";
+
+
 
 const Register = () => {
   const [form, setForm] = useState({

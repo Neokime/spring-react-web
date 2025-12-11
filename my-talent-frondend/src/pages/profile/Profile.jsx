@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import talentService from '../../services/talent.service';
 import useUserStore from '../../store/useUserStroe';
+import "./profile.css";
+
 
 const Profile = () => {
   const [myTalentList, setMyTalentList] = useState([]);
@@ -21,26 +23,31 @@ const Profile = () => {
   }, [currentUser]);
 
   return (
-    <div className="mt-5">
-      {errorMessage && <div className="alert alert-danger">{errorMessage}</div>}
+    <div className="profile-page mt-5">
 
-      <div className="card">
-        <div className="card-header">
-          <div className="row">
-            <div className="col-6">
-              <h3>내 프로필</h3>
-            </div>
-            <div className="col-6 text-end">
-              현재 유저: <strong>{currentUser?.email}</strong>
-              <br/>
-              Role: <strong>{currentUser?.role}</strong>
-            </div>
-          </div>
+  {errorMessage && <div className="alert alert-danger">{errorMessage}</div>}
+
+  <div className="card profile-card">
+    <div className="profile-card-header">
+      <div className="row">
+        <div className="col-6">
+          <h3>내 프로필</h3>
         </div>
 
-        <div className="card-body">
-          <h4>내가 등록한 재능</h4>
-          <table className="table table-striped mt-3">
+        <div className="col-6 profile-user-info">
+          현재 유저: <strong>{currentUser?.email}</strong><br />
+          Role: <strong>{currentUser?.role}</strong><br />
+          남은 크레딧: <strong>{currentUser?.credit ?? 0}</strong>
+        </div>
+      </div>
+    </div>
+
+    <div className="profile-card-body">
+      <h4>내가 등록한 재능</h4>
+
+      <table className="table profile-table mt-3">
+
+
             <thead>
               <tr>
                 <th>#</th>

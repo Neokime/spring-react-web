@@ -4,6 +4,8 @@ import logo from "../assets/react.svg";
 
 import useUserStore from "../store/useUserStroe";
 import { Role } from "../models/Role";
+import "./Navbar.css";
+
 
 const Navbar = () => {
   const currentUser = useUserStore((state) => state.user);

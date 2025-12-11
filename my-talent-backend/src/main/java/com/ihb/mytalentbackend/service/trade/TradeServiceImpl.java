@@ -81,6 +81,7 @@ public class TradeServiceImpl implements TradeService {
     }
 
     // 삭제
+
     @Override
     public void deleteTrade(Long id, Long userId) {
         TradeBoard board = tradeBoardRepository.findById(id)
@@ -90,6 +91,10 @@ public class TradeServiceImpl implements TradeService {
             throw new RuntimeException("삭제 권한 없음");
         }
 
+        // 🔥 1) 이 글을 참조하는 요청들 먼저 삭제
+        tradeRequestRepository.deleteAllByTradeBoard_Id(id);
+
+        // 🔥 2) 그 다음에 글 삭제
         tradeBoardRepository.delete(board);
     }
 
@@ -140,12 +145,16 @@ public class TradeServiceImpl implements TradeService {
             throw new RuntimeException("요청이 이 게시글에 속하지 않음");
         }
 
-        // 해당 요청 ACCEPTED 로
-        req.setStatus("ACCEPTED");
 
-        // 게시글 상태도 MATCHED 로 변경
+        req.setStatus("ACCEPTED");
         board.setStatus("MATCHED");
+
+    // 거래 성사 보상: 판매자에게 크래딧 +10 지급
+        User seller = board.getUser();
+        int credit = seller.getCredit() == null ? 0 : seller.getCredit();
+        seller.setCredit(credit + 10);   // 거래 완료 보상 (10은 원하는 값으로 조절 가능)
     }
+
 
     // ================== Mapper ==================
 

@@ -1,3 +1,4 @@
+
 package com.ihb.mytalentbackend.domain;
 
 import jakarta.persistence.*;
@@ -21,7 +22,6 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // 👇 로그인 아이디용 필드 추가
     @Column(unique = true, nullable = false, length = 50)
     private String userId;
 
@@ -43,4 +43,12 @@ public class User {
 
     @Transient
     private String token;
+
+    // 🔹 기본값 0 + not null
+    @Column(nullable = false)
+    private Integer credit = 0;
+
+    public void setCredit(int credit) {
+        this.credit = credit;
+    }
 }

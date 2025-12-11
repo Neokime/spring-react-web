@@ -1,0 +1,83 @@
+/* 전체 네비바 스타일 */
+.navbar {
+  background-color: #ffffff !important; /* 화이트 톤 모던 */
+  padding: 12px 0 !important;
+  border-bottom: 1px solid #E5E5E5;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+}
+
+/* 로고 + 브랜드 */
+.navbar-brand {
+  font-weight: 700;
+  font-size: 18px;
+  color: #333 !important;
+  letter-spacing: -0.5px;
+  display: flex;
+  align-items: center;
+}
+
+.navbar-brand img {
+  height: 26px;
+  margin-right: 8px;
+}
+
+/* 메뉴 스타일 */
+.nav-link {
+  color: #555 !important;
+  font-weight: 500;
+  padding: 8px 14px !important;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.nav-link:hover {
+  background-color: #F3F3F3;
+  color: #111 !important;
+}
+
+.nav-link.active {
+  background-color: #111;
+  color: #fff !important;
+}
+
+/* 오른쪽 버튼 */
+.btn-outline-light {
+  border: 1px solid #ccc !important;
+  color: #333 !important;
+  background: white !important;
+  border-radius: 6px;
+  padding: 6px 14px;
+  transition: 0.2s;
+}
+
+.btn-outline-light:hover {
+  background-color: #f0f0f0 !important;
+}
+
+/* 로그인 / 가입하기 버튼 */
+.navbar-nav .nav-item .nav-link {
+  font-size: 15px;
+}
+
+.navbar-nav.flex-row .nav-item {
+  display: flex;
+  align-items: center;
+}
+
+/* 우측 로그인 / 프로필 */
+.username {
+  font-weight: 600;
+  color: #222 !important;
+  margin-right: 10px;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+  .navbar-nav.flex-row {
+    flex-direction: column;
+  }
+
+  .nav-item {
+    margin-bottom: 6px;
+  }
+}

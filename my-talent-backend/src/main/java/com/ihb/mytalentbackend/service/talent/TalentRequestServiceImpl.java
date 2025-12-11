@@ -108,12 +108,24 @@ public class TalentRequestServiceImpl implements TalentRequestService {
             throw new RuntimeException("이 재능을 관리할 권한이 없습니다.");
         }
 
-        // 3) 상태 변경
-        request.accept();
 
-        // 4) 저장
+        User seller = request.getTalent().getUser();     // 재능 판매자
+        User buyer  = request.getRequester();            // 신청자(구매자)
+
+        int price = request.getTotalCredits();           // 예: 600 크레딧
+        int buyerCredit  = buyer.getCredit() == null ? 0 : buyer.getCredit();
+        int sellerCredit = seller.getCredit() == null ? 0 : seller.getCredit();
+        // 구매자 크레딧 부족 체크
+        if (buyerCredit < price) {
+            throw new RuntimeException("구매자의 크래딧이 부족합니다.");
+        }
+
+        buyer.setCredit(buyerCredit - price);           // 신청자 크레딧 차감
+        seller.setCredit(sellerCredit + price);         // 판매자 크레딧 증가
+        request.accept();                               // 상태 ACCEPTED, 처리시간 등 세팅
         talentRequestRepository.save(request);
     }
+
 
     @Override
     public void rejectRequest(Long talentId, Long requestId, Long ownerId) {

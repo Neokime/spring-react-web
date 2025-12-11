@@ -12,4 +12,6 @@ public interface TradeRequestRepository extends JpaRepository<TradeRequest, Long
 
     // 하나의 게시글에서 특정 유저의 요청
     List<TradeRequest> findByTradeBoard_IdAndRequester_Id(Long tradeBoardId, Long userId);
+
+    void deleteAllByTradeBoard_Id(Long tradeBoardId);
 }

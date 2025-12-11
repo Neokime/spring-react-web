@@ -31,8 +31,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         String jwt = jwtProvider.generateToken(principal);
 
         User signedIn = principal.getUser();
-        signedIn.setToken(jwt);
 
+        // 🔹 credit 이 null 이면 0으로 맞춰주기 (Map.of 안에서 NPE 안 나게)
+        if (signedIn.getCredit() == null) {
+            signedIn.setCredit(0);
+        }
+
+        signedIn.setToken(jwt);
         return signedIn;
     }
 }
