@@ -79,7 +79,7 @@ const Navbar = () => {
               </Link>
             </li>
             <li className="nav-item">
-              {/* ✅ 실제 라우트는 /trades 라서 수정 */}
+              {/* 실제 라우트는 /trades 라서 수정 */}
               <Link
                 className={`nav-link ${isActive("/trades") ? "active" : ""}`}
                 to="/trades"
@@ -96,7 +96,7 @@ const Navbar = () => {
               </Link>
             </li>
 
-            {/* ✅ ADMIN 전용 메뉴 */}
+           
             {currentUser?.role === "ADMIN" && (
               <li className="nav-item">
                 <Link
