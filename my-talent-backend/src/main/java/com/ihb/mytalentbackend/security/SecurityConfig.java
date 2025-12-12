@@ -32,28 +32,32 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         http
-                // 세션 안 씀 + CSRF 끔
+
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-                // CORS
+
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
-                // 인가 규칙
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
 
-                        // 🔥 여기만 바꾸기
+
                         .requestMatchers("/api/admin/**").authenticated()
 
-                        .requestMatchers(HttpMethod.GET, "/api/talents/*/feedback").permitAll()
+                        .requestMatchers("/api/user/me").authenticated()
+
+                        .requestMatchers("/api/user/**").hasAnyRole("USER", "ADMIN")
+
+
+                                .requestMatchers(HttpMethod.GET, "/api/talents/*/feedback").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/talents/*/requests").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/talents/*/requests").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/talents/*/requests/*/accept").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/trades/**").permitAll()
 
-                                // Trade 조회는 전체 허용
+
                         .requestMatchers(HttpMethod.GET, "/api/trades/**").permitAll()
 
 

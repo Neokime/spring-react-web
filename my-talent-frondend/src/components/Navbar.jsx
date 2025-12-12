@@ -1,103 +1,132 @@
 // src/components/Navbar.jsx
-import { NavLink, useNavigate } from "react-router-dom";
-import logo from "../assets/react.svg";
-
+import React from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import useUserStore from "../store/useUserStroe";
-import { Role } from "../models/Role";
-import "./Navbar.css";
-
+import api from "../services/base.service";
+import "./navbar.css";
 
 const Navbar = () => {
-  const currentUser = useUserStore((state) => state.user);
-  const clearCurrentUser = useUserStore((state) => state.clearCurrentUser);
+  const location = useLocation();
   const navigate = useNavigate();
 
-  console.log("Navbar currentUser:", currentUser);
-  console.log("Role.ADMIN:", Role.ADMIN);
+  const currentUser = useUserStore((state) => state.user);
+  const clearUser = useUserStore((state) => state.clearUser);
 
-  const logout = () => {
-    clearCurrentUser();
+  const isActive = (path) => location.pathname.startsWith(path);
+
+  // 로그아웃
+  const handleLogout = () => {
+    clearUser();
+    localStorage.removeItem("currentUser");
     navigate("/login");
   };
 
+  // 회원 탈퇴
+  const handleDeleteAccount = async () => {
+    if (!window.confirm("정말 회원 탈퇴하시겠습니까?")) return;
+
+    try {
+      // 백엔드 DELETE /api/user/me 기준
+      await api.delete("/user/me");
+
+      alert("회원 탈퇴가 완료되었습니다.");
+
+      clearUser();
+      localStorage.removeItem("currentUser");
+      navigate("/login");
+    } catch (err) {
+      console.error(err);
+      alert("회원 탈퇴 중 오류가 발생했습니다.");
+    }
+  };
+
   return (
-    <nav className="navbar navbar-dark bg-dark">
-      <div className="container d-flex align-items-center justify-content-between">
-        {/* 왼쪽: 로고 */}
-        <div className="d-flex align-items-center">
-          <NavLink to="/" className="navbar-brand d-flex align-items-center">
-            <img
-              src={logo}
-              alt="logo"
-              style={{ height: "30px", marginRight: "8px" }}
-            />
-            MY TALENT
-          </NavLink>
+    <nav className="navbar navbar-expand-lg">
+      <div className="container">
+
+        <Link className="navbar-brand" to="/talents">
+          MY TALENT
+        </Link>
+
+        <button
+          className="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarMain"
+        >
+          <span className="navbar-toggler-icon" />
+        </button>
+
+        <div className="collapse navbar-collapse" id="navbarMain">
+          <ul className="navbar-nav mx-auto">
+            <li className="nav-item">
+              <Link className={`nav-link ${isActive("/talents") ? "active" : ""}`} to="/talents">
+                목록
+              </Link>
+            </li>
+            <li className="nav-item">
+              <Link className={`nav-link ${isActive("/trades") ? "active" : ""}`} to="/trades">
+                교환
+              </Link>
+            </li>
+            <li className="nav-item">
+              <Link className={`nav-link ${isActive("/store") ? "active" : ""}`} to="/store">
+                스토어
+              </Link>
+            </li>
+          </ul>
+
+          <ul className="navbar-nav ms-auto">
+            {!currentUser && (
+              <>
+                <li className="nav-item me-2">
+                  <Link className="btn btn-outline-dark" to="/login">
+                    로그인
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link className="btn btn-dark" to="/register">
+                    회원가입
+                  </Link>
+                </li>
+              </>
+            )}
+
+            {currentUser && (
+              <li className="nav-item dropdown">
+                <button
+                  className="btn btn-dark dropdown-toggle"
+                  data-bs-toggle="dropdown"
+                >
+                  {currentUser.nickname || currentUser.email}
+                </button>
+
+                <ul className="dropdown-menu dropdown-menu-end">
+                  <li>
+                    <button className="dropdown-item" onClick={() => navigate("/profile")}>
+                      프로필
+                    </button>
+                  </li>
+
+                  <li><hr className="dropdown-divider" /></li>
+
+                  <li>
+                    <button className="dropdown-item" onClick={handleLogout}>
+                      로그아웃
+                    </button>
+                  </li>
+
+                  <li>
+                    <button className="dropdown-item text-danger" onClick={handleDeleteAccount}>
+                      회원 탈퇴
+                    </button>
+                  </li>
+                </ul>
+              </li>
+            )}
+          </ul>
+
         </div>
-
-        {/* 가운데: 메뉴들 */}
-        <ul className="navbar-nav flex-row">
-          {/* 🔥 관리자 전용 메뉴 */}
-          {currentUser?.role === Role.ADMIN && (
-            <li className="nav-item mx-2">
-              <NavLink to="/admin/users" className="nav-link">
-                관리자
-              </NavLink>
-            </li>
-          )}
-
-          {/* 공통 메뉴 */}
-          <li className="nav-item mx-2">
-            <NavLink to="/talents" className="nav-link">
-              목록
-            </NavLink>
-          </li>
-
-          <li className="nav-item mx-2">
-            <NavLink to="/trades" className="nav-link">
-              교환
-            </NavLink>
-          </li>
-
-          {/* ⭐ 스토어 메뉴 추가 */}
-          <li className="nav-item mx-2">
-            <NavLink to="/store" className="nav-link">
-              스토어
-            </NavLink>
-          </li>
-        </ul>
-
-        {/* 오른쪽: 로그인/프로필 */}
-        {!currentUser ? (
-          <ul className="navbar-nav flex-row">
-            <li className="nav-item mx-2">
-              <NavLink to="/login" className="nav-link">
-                로그인
-              </NavLink>
-            </li>
-            <li className="nav-item mx-2">
-              <NavLink to="/register" className="nav-link">
-                가입하기
-              </NavLink>
-            </li>
-          </ul>
-        ) : (
-          <ul className="navbar-nav flex-row">
-            <li className="nav-item mx-2">
-              <NavLink to="/profile" className="nav-link">
-                {currentUser.nickname}
-              </NavLink>
-            </li>
-            <li className="nav-item mx-2">
-              <button
-                className="btn btn-outline-light btn-sm"
-                onClick={logout}
-              >
-                로그아웃
-              </button>
-            </li>
-          </ul>
-        )}
       </div>
     </nav>
   );

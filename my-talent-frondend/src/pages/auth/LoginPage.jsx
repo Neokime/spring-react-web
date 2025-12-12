@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react'; // 👈 useEffect 추가
+// src/pages/auth/LoginPage.jsx
+import React, { useState, useEffect } from 'react'; 
 import { Link, useNavigate } from 'react-router-dom';
 import { loginService } from '../../services/auth.service';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUserCircle } from '@fortawesome/free-solid-svg-icons';
 import useUserStore from '../../store/useUserStroe';
 import "./auth.css";
-
 
 const Login = () => {
   const [form, setForm] = useState({
@@ -17,11 +17,13 @@ const Login = () => {
   const [submitted, setSubmitted] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  const currentUser = useUserStore((state) => state.user);     
-  const setCurrentUser = useUserStore((state) => state.setCurrentUser);
+  const currentUser = useUserStore((state) => state.user);
+
+  // 🔥 수정된 부분: setCurrentUser → setUser
+  const setUser = useUserStore((state) => state.setUser);
+
   const navigate = useNavigate();
 
-  
   useEffect(() => {
     if (currentUser?.id) {
       navigate('/talents');
@@ -47,20 +49,20 @@ const Login = () => {
     try {
       const response = await loginService(form);
 
-      console.log("🚀 login response:", response.data);  // 테스트
+      console.log("🚀 login response:", response.data);
 
       const user = response.data;
 
-      setCurrentUser({
+      // 🔥 수정된 부분: setCurrentUser → setUser
+      setUser({
         id: user.id,
         userId: user.userId,
         email: user.email,
         nickname: user.nickname,
-        role: user.role,    
+        role: user.role,
         token: user.token,
         credit: user.credit ?? 0,
       });
-
 
       navigate('/talents');
     } catch (error) {

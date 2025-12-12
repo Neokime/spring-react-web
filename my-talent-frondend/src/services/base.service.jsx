@@ -7,34 +7,38 @@ const api = axios.create({
   baseURL: BASE_API_URL + "/api",
 });
 
-
+// ---------------------
+// 요청 인터셉터
+// ---------------------
 api.interceptors.request.use((config) => {
   const { user } = useUserStore.getState();
 
-  
   const token =
     user?.token ||
-    user?.accessToken ||   // 백엔드 응답이 accessToken 으로 올 때
+    user?.accessToken ||
     user?.jwt ||
     user?.access_token;
 
   if (token) {
-    if (!config.headers) config.headers = {};
+    config.headers = config.headers || {};
     config.headers.Authorization = "Bearer " + token;
   }
 
   return config;
 });
 
+// ---------------------
+// 응답 인터셉터
+// ---------------------
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    const { user, clearCurrentUser } = useUserStore.getState();
+    const store = useUserStore.getState();
+    const user = store.user;
+    const clearUser = store.clearUser;
 
     console.log("🟡 interceptor user:", user);
-   
 
-    // 🔹 위와 동일한 기준으로 토큰 존재 여부 판단
     const token =
       user?.token ||
       user?.accessToken ||
@@ -44,8 +48,14 @@ api.interceptors.response.use(
     const isLoggedIn = !!token;
     const status = error?.response?.status;
 
-    if (isLoggedIn && status === 401) {
-      clearCurrentUser();
+    // 인증 실패 → 강제 로그아웃
+    if (isLoggedIn && (status === 401 || status === 403)) {
+      clearUser();
+
+      try {
+        localStorage.removeItem("currentUser");
+      } catch (e) {}
+
       window.location.href = "/login";
     }
 
@@ -53,12 +63,8 @@ api.interceptors.response.use(
   }
 );
 
-
 export const authHeader = () => {
   const { user } = useUserStore.getState();
-
-  
-
 
   const token =
     user?.token ||

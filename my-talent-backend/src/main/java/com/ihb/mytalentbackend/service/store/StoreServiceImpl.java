@@ -73,14 +73,16 @@ public class StoreServiceImpl implements StoreService {
     // ======================
     // 🔹 삭제
     // ======================
-    @Override
-    public void deleteItem(Long id) {
+    @Transactional
+    public void deleteItem(Long itemId) {
 
-        StoreItem item = storeItemRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("상품 없음"));
+        // 먼저 구매 기록 삭제
+        purchaseHistoryRepository.deleteByItemId(itemId);
 
-        storeItemRepository.delete(item);
+        // 이후 아이템 삭제
+        storeItemRepository.deleteById(itemId);
     }
+
 
     // ======================
     // 🔥 구매 기능 - 크레딧 차감 없음(지금은 구조만)

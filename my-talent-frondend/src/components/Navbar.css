@@ -1,17 +1,28 @@
-/* 전체 네비바 스타일 */
+/* ============================
+   공통 네비바 스타일
+============================ */
+
 .navbar {
-  background-color: #ffffff !important; /* 화이트 톤 모던 */
-  padding: 12px 0 !important;
-  border-bottom: 1px solid #E5E5E5;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+  background-color: #ffffff !important;
+  padding: 10px 0 !important;
+  border-bottom: 1px solid #e5e7eb;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
 }
 
-/* 로고 + 브랜드 */
+/* 컨테이너 폭 조정 */
+.navbar .container {
+  max-width: 1100px;
+}
+
+/* ============================
+   로고 / 브랜드
+============================ */
+
 .navbar-brand {
   font-weight: 700;
   font-size: 18px;
-  color: #333 !important;
-  letter-spacing: -0.5px;
+  color: #111827 !important;
+  letter-spacing: -0.4px;
   display: flex;
   align-items: center;
 }
@@ -21,63 +32,149 @@
   margin-right: 8px;
 }
 
-/* 메뉴 스타일 */
-.nav-link {
-  color: #555 !important;
+/* ============================
+   가운데 메뉴(목록 / 교환 / 스토어)
+============================ */
+
+.navbar-nav.mx-auto .nav-link {
+  color: #4b5563 !important;
   font-weight: 500;
-  padding: 8px 14px !important;
-  border-radius: 6px;
-  transition: all 0.2s ease;
+  padding: 8px 16px !important;
+  border-radius: 999px;
+  transition: all 0.18s ease-in-out;
 }
 
-.nav-link:hover {
-  background-color: #F3F3F3;
-  color: #111 !important;
+.navbar-nav.mx-auto .nav-link:hover {
+  background-color: #f3f4f6;
+  color: #111827 !important;
 }
 
-.nav-link.active {
-  background-color: #111;
-  color: #fff !important;
+.navbar-nav.mx-auto .nav-link.active {
+  background-color: #111827;
+  color: #ffffff !important;
 }
 
-/* 오른쪽 버튼 */
-.btn-outline-light {
-  border: 1px solid #ccc !important;
-  color: #333 !important;
-  background: white !important;
-  border-radius: 6px;
+/* ============================
+   우측 영역 (로그인 / 회원가입 / 유저 드롭다운)
+============================ */
+
+.navbar-nav.ms-auto .btn {
+  font-size: 14px;
   padding: 6px 14px;
-  transition: 0.2s;
+  border-radius: 999px;
 }
 
-.btn-outline-light:hover {
-  background-color: #f0f0f0 !important;
+/* 로그인 / 회원가입 버튼 */
+.navbar-nav.ms-auto .btn-outline-dark {
+  border-color: #d1d5db;
+  color: #374151;
+  background-color: #ffffff;
+  transition: all 0.18s ease-in-out;
 }
 
-/* 로그인 / 가입하기 버튼 */
-.navbar-nav .nav-item .nav-link {
-  font-size: 15px;
+.navbar-nav.ms-auto .btn-outline-dark:hover {
+  background-color: #f3f4f6;
+  color: #111827;
 }
 
-.navbar-nav.flex-row .nav-item {
-  display: flex;
+.navbar-nav.ms-auto .btn-dark {
+  background: #111827;
+  border-color: #111827;
+  color: #ffffff;
+  transition: all 0.18s ease-in-out;
+}
+
+.navbar-nav.ms-auto .btn-dark:hover {
+  background: #0f172a;
+  border-color: #0f172a;
+}
+
+/* 유저 닉네임 드롭다운 버튼 */
+.navbar-nav.ms-auto .dropdown-toggle.btn-dark {
+  display: inline-flex;
   align-items: center;
-}
-
-/* 우측 로그인 / 프로필 */
-.username {
+  gap: 6px;
   font-weight: 600;
-  color: #222 !important;
-  margin-right: 10px;
+  padding-inline: 16px;
 }
 
-/* 반응형 */
+/* 드롭다운 메뉴 */
+.dropdown-menu {
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  padding: 6px 0;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.12);
+  font-size: 14px;
+}
+
+.dropdown-menu .dropdown-item {
+  padding: 8px 14px;
+  color: #374151;
+  transition: background 0.15s ease-in-out, color 0.15s ease-in-out;
+}
+
+.dropdown-menu .dropdown-item:hover {
+  background-color: #f3f4f6;
+  color: #111827;
+}
+
+.dropdown-menu .dropdown-item.text-danger {
+  color: #b91c1c;
+}
+
+.dropdown-menu .dropdown-item.text-danger:hover {
+  background-color: #fef2f2;
+  color: #991b1b;
+}
+
+/* 구분선 */
+.dropdown-menu .dropdown-divider {
+  margin: 4px 0;
+}
+
+/* ============================
+   토글 버튼 (모바일)
+============================ */
+
+.navbar-toggler {
+  border: none;
+  padding: 4px 8px;
+}
+
+.navbar-toggler:focus {
+  box-shadow: none;
+}
+
+.navbar-toggler-icon {
+  filter: invert(35%);
+}
+
+/* ============================
+   반응형
+============================ */
+
 @media (max-width: 768px) {
-  .navbar-nav.flex-row {
-    flex-direction: column;
+  .navbar {
+    padding: 8px 0 !important;
   }
 
-  .nav-item {
-    margin-bottom: 6px;
+  .navbar-nav.mx-auto {
+    margin-top: 8px;
+    margin-bottom: 4px;
+  }
+
+  .navbar-nav.mx-auto .nav-link {
+    border-radius: 8px;
+  }
+
+  .navbar-nav.ms-auto .btn,
+  .navbar-nav.ms-auto .dropdown-toggle.btn-dark {
+    width: 100%;
+    justify-content: center;
+    margin-top: 6px;
+  }
+
+  .dropdown-menu {
+    min-width: 180px;
   }
 }

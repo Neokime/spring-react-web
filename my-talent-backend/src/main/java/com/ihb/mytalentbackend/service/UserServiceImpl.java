@@ -24,8 +24,14 @@ public class UserServiceImpl implements UserService {
     public User saveUser(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setRole(Role.USER);
+
+        if (user.getCredit() == null) {
+            user.setCredit(100);
+        }
+
         return userRepository.save(user);
     }
+
 
     @Override
     public User findUserByEmail(String email) {

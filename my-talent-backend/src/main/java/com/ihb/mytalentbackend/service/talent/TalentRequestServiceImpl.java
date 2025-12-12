@@ -1,6 +1,7 @@
 // src/main/java/com/ihb/mytalentbackend/service/talent/TalentRequestServiceImpl.java
 package com.ihb.mytalentbackend.service.talent;
 
+import com.ihb.mytalentbackend.domain.Role;
 import com.ihb.mytalentbackend.domain.talent.TalentBoard;
 import com.ihb.mytalentbackend.domain.talent.TalentRequest;
 import com.ihb.mytalentbackend.domain.talent.TalentRequestStatus;
@@ -103,28 +104,42 @@ public class TalentRequestServiceImpl implements TalentRequestService {
             throw new RuntimeException("재능 ID가 일치하지 않습니다.");
         }
 
-        // 2) 재능 소유자가 맞는지 검증
+        // 2) 재능 소유자가 맞는지 검증 (판매자)
         if (!request.getTalent().getUser().getId().equals(ownerId)) {
             throw new RuntimeException("이 재능을 관리할 권한이 없습니다.");
         }
 
 
-        User seller = request.getTalent().getUser();     // 재능 판매자
-        User buyer  = request.getRequester();            // 신청자(구매자)
+        User buyer = request.getRequester();      // 신청자
+        User seller = request.getTalent().getUser(); // 판매자
 
-        int price = request.getTotalCredits();           // 예: 600 크레딧
-        int buyerCredit  = buyer.getCredit() == null ? 0 : buyer.getCredit();
-        int sellerCredit = seller.getCredit() == null ? 0 : seller.getCredit();
-        // 구매자 크레딧 부족 체크
-        if (buyerCredit < price) {
-            throw new RuntimeException("구매자의 크래딧이 부족합니다.");
+        int buyerCredit = (buyer.getCredit() == null) ? 0 : buyer.getCredit();
+        int sellerCredit = (seller.getCredit() == null) ? 0 : seller.getCredit();
+        int totalCredits = request.getTotalCredits();
+
+
+
+// 부족 여부 체크
+        if (buyer.getRole() != Role.ADMIN) {
+            buyerCredit = buyer.getCredit() == null ? 0 : buyer.getCredit();
+            if (buyerCredit < totalCredits) {
+                throw new RuntimeException("구매자의 크래딧이 부족합니다.");
+            }
         }
 
-        buyer.setCredit(buyerCredit - price);           // 신청자 크레딧 차감
-        seller.setCredit(sellerCredit + price);         // 판매자 크레딧 증가
-        request.accept();                               // 상태 ACCEPTED, 처리시간 등 세팅
-        talentRequestRepository.save(request);
+
+// 구매자 차감
+        buyer.setCredit(buyerCredit - totalCredits);
+
+// 판매자 증가
+        seller.setCredit(sellerCredit + totalCredits);
+
+// 상태 변경
+        request.accept();
+
+        // @Transactional 이면 별도 save 없어도 flush 시 반영됨
     }
+
 
 
     @Override
