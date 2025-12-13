@@ -23,6 +23,16 @@ const useUserStore = create(
           user: null,
           lastAction: CLEAR_CURRENT_USER,
         }),
+
+        // credit만 업데이트
+      updateCredit: (credit) =>
+        set((state) => ({
+          user: {
+            ...state.user,
+            credit,
+       },
+  })),
+
     }),
     {
       name: "currentUser", // localStorage key

@@ -41,14 +41,18 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/api/auth/**").permitAll()
+                                .requestMatchers("/api/auth/**").permitAll()
+
+// ✅ 이 줄을 위로
+                                .requestMatchers("/api/user/check-userid").permitAll()
+
+                                .requestMatchers("/api/admin/**").authenticated()
+                                .requestMatchers("/api/user/me").authenticated()
+                                .requestMatchers("/api/user/**").hasAnyRole("USER", "ADMIN")
 
 
-                        .requestMatchers("/api/admin/**").authenticated()
 
-                        .requestMatchers("/api/user/me").authenticated()
 
-                        .requestMatchers("/api/user/**").hasAnyRole("USER", "ADMIN")
 
 
                                 .requestMatchers(HttpMethod.GET, "/api/talents/*/feedback").permitAll()

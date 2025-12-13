@@ -30,5 +30,12 @@ public class UserController {
         return ResponseEntity.ok(true);
     }
 
+    @GetMapping("/check-userid")
+    public ResponseEntity<Boolean> checkUserId(@RequestParam String userId) {
+        boolean exists = userService.findUserByUserId(userId) != null;
+        return ResponseEntity.ok(exists); // true = 이미 존재
+    }
+
+
 
 }

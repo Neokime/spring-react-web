@@ -3,9 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { registerService } from '../../services/auth.service';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUserCircle } from '@fortawesome/free-solid-svg-icons';
-import "../auth/auth.css";
-
-
+import api from '../../services/base.service'; // ⭐ 중복확인용
+import '../auth/auth.css';
 
 const Register = () => {
   const [form, setForm] = useState({
@@ -19,6 +18,10 @@ const Register = () => {
   const [submitted, setSubmitted] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
+  // ⭐ 아이디 중복확인 상태
+  const [userIdChecked, setUserIdChecked] = useState(false);
+  const [userIdError, setUserIdError] = useState('');
+
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -28,13 +31,48 @@ const Register = () => {
       ...prev,
       [name]: value,
     }));
+
+    // 아이디 변경 시 중복확인 다시 필요
+    if (name === 'userId') {
+      setUserIdChecked(false);
+      setUserIdError('');
+    }
+  };
+
+  // ⭐ 아이디 중복확인
+  const checkUserId = async () => {
+    if (!form.userId) return;
+
+    try {
+      const res = await api.get('/user/check-userid', {
+        params: { userId: form.userId },
+      });
+
+      if (res.data === true) {
+        setUserIdError('이미 사용 중인 아이디입니다.');
+        setUserIdChecked(false);
+      } else {
+        setUserIdError('');
+        setUserIdChecked(true);
+        alert('사용 가능한 아이디입니다.');
+      }
+    } catch (err) {
+      setUserIdError('아이디 확인 중 오류가 발생했습니다.');
+    }
   };
 
   const handleRegister = async (e) => {
     e.preventDefault();
     setSubmitted(true);
+    setErrorMessage('');
 
     if (!form.userId || !form.email || !form.nickname || !form.password) return;
+
+    // ⭐ 중복확인 필수
+    if (!userIdChecked) {
+      setErrorMessage('아이디 중복확인을 해주세요.');
+      return;
+    }
 
     setLoading(true);
 
@@ -42,8 +80,6 @@ const Register = () => {
       await registerService(form);
       navigate('/login');
     } catch (error) {
-      console.error(error);
-
       if (error?.response?.status === 409) {
         setErrorMessage(error.response.data || '이미 존재하는 아이디/이메일입니다.');
       } else {
@@ -62,23 +98,35 @@ const Register = () => {
         {errorMessage && <div className="alert alert-danger">{errorMessage}</div>}
 
         <form onSubmit={handleRegister} noValidate className={submitted ? 'was-validated' : ''}>
-          
+
+          {/* 아이디 */}
           <div className="form-group mb-2">
-            <label htmlFor="userId">아이디</label>
-            <input
-              type="text"
-              name="userId"
-              className="form-control"
-              placeholder="아이디 입력"
-              value={form.userId}
-              onChange={handleChange}
-              required
-            />
+            <label>아이디</label>
+            <div className="d-flex gap-2">
+              <input
+                type="text"
+                name="userId"
+                className="form-control"
+                placeholder="아이디 입력"
+                value={form.userId}
+                onChange={handleChange}
+                required
+              />
+              <button
+                type="button"
+                className="btn btn-outline-secondary"
+                onClick={checkUserId}
+              >
+                중복확인
+              </button>
+            </div>
+            {userIdError && <small className="text-danger">{userIdError}</small>}
             <div className="invalid-feedback">아이디를 입력해주세요</div>
           </div>
 
+          {/* 이메일 */}
           <div className="form-group mb-2">
-            <label htmlFor="email">이메일</label>
+            <label>이메일</label>
             <input
               type="email"
               name="email"
@@ -91,8 +139,9 @@ const Register = () => {
             <div className="invalid-feedback">이메일을 입력해주세요</div>
           </div>
 
+          {/* 닉네임 */}
           <div className="form-group mb-2">
-            <label htmlFor="nickname">닉네임</label>
+            <label>닉네임</label>
             <input
               type="text"
               name="nickname"
@@ -105,8 +154,9 @@ const Register = () => {
             <div className="invalid-feedback">닉네임을 입력해주세요</div>
           </div>
 
+          {/* 비밀번호 */}
           <div className="form-group mb-2">
-            <label htmlFor="password">비밀번호</label>
+            <label>비밀번호</label>
             <input
               type="password"
               name="password"
