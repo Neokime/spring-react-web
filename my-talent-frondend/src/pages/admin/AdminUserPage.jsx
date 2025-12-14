@@ -2,31 +2,17 @@ import { useEffect, useState } from "react";
 import api from "../../services/base.service";
 
 export default function AdminUserPage() {
-
-  console.log("🔵 AdminUserPage 렌더링됨"); // ← 렌더링 체크
-
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
-    console.log("🟢 useEffect 실행 → /api/admin/users 호출"); // ← useEffect 호출 확인
-
     api.get("/admin/users")
-      .then((res) => {
-        console.log("🟢 /api/admin/users 응답:", res.data); // ← 정상 응답 확인
-        setUsers(res.data);
-      })
-      .catch((err) => {
-        console.error("🔴 /api/admin/users 에러:", err); // ← 에러 확인
-      });
+      .then((res) => setUsers(res.data))
+      .catch(console.error);
   }, []);
 
   const toggleRole = (id) => {
-    console.log("🟠 toggleRole 실행, id:", id);
-
     api.post(`/admin/users/${id}/toggle-role`)
       .then(() => {
-        console.log("🟢 toggle-role 성공");
-
         setUsers((prev) =>
           prev.map((u) =>
             u.id === id
@@ -34,10 +20,18 @@ export default function AdminUserPage() {
               : u
           )
         );
-      })
-      .catch((err) => {
-        console.error("🔴 toggle-role 에러:", err);
       });
+  };
+
+  // 🔴 유저 삭제 추가
+  const deleteUser = (id) => {
+    if (!window.confirm("정말 이 유저를 삭제하시겠습니까?")) return;
+
+    api.delete(`/admin/users/${id}`)
+      .then(() => {
+        setUsers((prev) => prev.filter((u) => u.id !== id));
+      })
+      .catch(console.error);
   };
 
   return (
@@ -49,7 +43,7 @@ export default function AdminUserPage() {
             <th>ID</th>
             <th>닉네임</th>
             <th>ROLE</th>
-            <th></th>
+            <th>관리</th>
           </tr>
         </thead>
         <tbody>
@@ -60,10 +54,17 @@ export default function AdminUserPage() {
               <td>{u.role}</td>
               <td>
                 <button
-                  className="btn btn-sm btn-warning"
+                  className="btn btn-sm btn-warning me-2"
                   onClick={() => toggleRole(u.id)}
                 >
                   권한변경
+                </button>
+
+                <button
+                  className="btn btn-sm btn-danger"
+                  onClick={() => deleteUser(u.id)}
+                >
+                  삭제
                 </button>
               </td>
             </tr>

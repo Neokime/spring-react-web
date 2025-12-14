@@ -49,15 +49,16 @@ api.interceptors.response.use(
     const status = error?.response?.status;
 
     // 인증 실패 → 강제 로그아웃
-    if (isLoggedIn && (status === 401 || status === 403)) {
-      clearUser();
+   if (isLoggedIn && status === 401) {
+  clearUser();
 
-      try {
-        localStorage.removeItem("currentUser");
-      } catch (e) {}
+  try {
+    localStorage.removeItem("currentUser");
+  } catch (e) {}
 
-      window.location.href = "/login";
-    }
+  window.location.href = "/login";
+}
+
 
     return Promise.reject(error);
   }

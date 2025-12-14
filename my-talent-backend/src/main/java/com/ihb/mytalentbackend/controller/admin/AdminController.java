@@ -67,4 +67,12 @@ public class AdminController {
 
         return ResponseEntity.ok().build();
     }
+
+    // 🔥 유저 삭제
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+        userService.deleteUser(id);
+        return ResponseEntity.ok().build();
+    }
+
 }

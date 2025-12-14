@@ -43,10 +43,10 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                                 .requestMatchers("/api/auth/**").permitAll()
 
-// ✅ 이 줄을 위로
+
                                 .requestMatchers("/api/user/check-userid").permitAll()
 
-                                .requestMatchers("/api/admin/**").authenticated()
+                                .requestMatchers("/api/admin/**").hasRole("ADMIN")
                                 .requestMatchers("/api/user/me").authenticated()
                                 .requestMatchers("/api/user/**").hasAnyRole("USER", "ADMIN")
 

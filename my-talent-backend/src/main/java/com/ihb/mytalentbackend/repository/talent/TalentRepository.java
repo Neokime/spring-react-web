@@ -8,6 +8,9 @@ import java.util.List;
 public interface TalentRepository extends JpaRepository<TalentBoard, Long> {
 
     List<TalentBoard> findByUser_Id(Long userId);
+    void deleteByUserId(Long userId);
+
+
 
 
 }

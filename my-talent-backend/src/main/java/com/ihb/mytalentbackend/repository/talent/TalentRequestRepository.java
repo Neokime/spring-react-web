@@ -11,6 +11,8 @@ public interface TalentRequestRepository extends JpaRepository<TalentRequest, Lo
     List<TalentRequest> findByRequester(User requester);
     List<TalentRequest> findByTalent(TalentBoard talent);
     void deleteByTalentId(Long talentId);
+    void deleteByRequesterId(Long requesterId);
+
 
 }
 
