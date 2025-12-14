@@ -1,11 +1,10 @@
-
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import talentService from "../../services/talent.service";
 import useUserStore from "../../store/useUserStroe";
 import { Modal } from "react-bootstrap";
 import "./talentDetail.css";
-import { BASE_API_URL } from "../../common/constants"; 
+import { BASE_API_URL } from "../../common/constants";
 
 import {
   getTalentFeedbacks,
@@ -15,7 +14,7 @@ import {
 } from "../../services/talentFeedback.service";
 
 import talentRequestService from "../../services/talentRequest.service";
-import uploadService from "../../services/upload.service"; 
+import uploadService from "../../services/upload.service";
 
 const TalentDetailPage = () => {
   const { id } = useParams();
@@ -26,6 +25,10 @@ const TalentDetailPage = () => {
 
   // 삭제 모달
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  // ✅ [추가] 썸네일 확대 모달
+  const [showImageModal, setShowImageModal] = useState(false);
+  const [zoomImageSrc, setZoomImageSrc] = useState("");
 
   // ----- 피드백 상태 -----
   const [feedbacks, setFeedbacks] = useState([]);
@@ -96,14 +99,9 @@ const TalentDetailPage = () => {
 
     try {
       if (editingFeedbackId) {
-        // 수정
-        await updateTalentFeedback(id, editingFeedbackId, {
-          content,
-          rating,
-        });
+        await updateTalentFeedback(id, editingFeedbackId, { content, rating });
         setEditingFeedbackId(null);
       } else {
-        // 새 피드백 작성
         await createTalentFeedback(id, {
           userId: user.id,
           rating,
@@ -180,14 +178,12 @@ const TalentDetailPage = () => {
     try {
       setUploading(true);
 
-      // 1) 파일 업로드
       const formData = new FormData();
       formData.append("file", file);
 
       const res = await uploadService.uploadFile(formData);
-      const thumbnailId = res.data.id; // 백엔드에서 id 로 내려온다고 가정
+      const thumbnailId = res.data.id;
 
-      // 2) 현재 재능 + thumbnailId 로 수정
       await talentService.updateTalent(id, {
         title: data.title,
         category: data.category,
@@ -197,7 +193,6 @@ const TalentDetailPage = () => {
         thumbnailId,
       });
 
-      // 3) 다시 상세 조회
       const detailRes = await talentService.getTalent(id);
       setData(detailRes.data);
 
@@ -211,9 +206,14 @@ const TalentDetailPage = () => {
     }
   };
 
+  // ✅ [추가] 썸네일 클릭 시 확대
+  const handleZoomImage = (src) => {
+    setZoomImageSrc(src);
+    setShowImageModal(true);
+  };
+
   if (!data) return <div>Loading...</div>;
 
-  // ================= 렌더링 =================
   return (
     <div className="container mt-4 talent-detail-page">
       <h1>재능 상세 페이지</h1>
@@ -222,13 +222,13 @@ const TalentDetailPage = () => {
       {data.thumbnailUrl && (
         <div className="mb-3">
           <img
-            src={`${BASE_API_URL}${data.thumbnailUrl}`}  
+            src={`${BASE_API_URL}${data.thumbnailUrl}`}
             alt="썸네일"
-            style={{ maxWidth: "300px", borderRadius: "8px" }}
+            style={{ maxWidth: "300px", borderRadius: "8px", cursor: "zoom-in" }}
+            onClick={() => handleZoomImage(`${BASE_API_URL}${data.thumbnailUrl}`)}  // ✅ [추가]
           />
         </div>
       )}
-
 
       <h2>{data.title}</h2>
       <p>카테고리: {data.category}</p>
@@ -253,7 +253,6 @@ const TalentDetailPage = () => {
             삭제
           </button>
 
-          {/* 숨겨진 파일 input */}
           <input
             type="file"
             accept="image/*"
@@ -273,19 +272,14 @@ const TalentDetailPage = () => {
         </div>
       )}
 
-      {/* ----- 재능 신청 버튼 (소유자 X + 로그인 O) ----- */}
       {!isOwner && user && (
         <div className="mt-3">
-          <button
-            className="btn btn-success"
-            onClick={() => setShowRequestModal(true)}
-          >
+          <button className="btn btn-success" onClick={() => setShowRequestModal(true)}>
             신청하기
           </button>
         </div>
       )}
 
-      {/* ----- 들어온 재능 신청 목록 (소유자만) ----- */}
       {isOwner && (
         <>
           <hr />
@@ -306,8 +300,7 @@ const TalentDetailPage = () => {
                       <strong>신청자:</strong> {req.requesterId}
                     </div>
                     <div>
-                      <strong>시간:</strong> {req.hours}시간 / 총{" "}
-                      {req.totalCredits} 크레딧
+                      <strong>시간:</strong> {req.hours}시간 / 총 {req.totalCredits} 크레딧
                     </div>
                     {req.message && <div>메시지: {req.message}</div>}
                     <div>상태: {req.status}</div>
@@ -328,7 +321,6 @@ const TalentDetailPage = () => {
         </>
       )}
 
-      {/* ----- 피드백 리스트 ----- */}
       <hr />
       <h3>피드백</h3>
 
@@ -340,8 +332,8 @@ const TalentDetailPage = () => {
             <li key={fb.id} className="list-group-item">
               <strong>{fb.nickname}</strong>
               <span className="star-rating-view">
-                  {"★".repeat(fb.rating)}
-                  {"☆".repeat(5 - fb.rating)}
+                {"★".repeat(fb.rating)}
+                {"☆".repeat(5 - fb.rating)}
               </span>
 
               <div>{fb.content}</div>
@@ -367,17 +359,14 @@ const TalentDetailPage = () => {
         </ul>
       )}
 
-      {/* ----- 피드백 작성/수정 폼 ----- */}
       {user ? (
         <form onSubmit={handleFeedbackSubmit}>
-          {feedbackError && (
-            <div className="alert alert-danger">{feedbackError}</div>
-          )}
+          {feedbackError && <div className="alert alert-danger">{feedbackError}</div>}
 
           <div className="mb-2">
             <label>평점</label>
             <div className="star-rating-input">
-              {[1,2,3,4,5].map((value) => (
+              {[1, 2, 3, 4, 5].map((value) => (
                 <span
                   key={value}
                   onClick={() => setRating(value)}
@@ -388,8 +377,6 @@ const TalentDetailPage = () => {
               ))}
             </div>
           </div>
-
-
 
           <div className="mb-2">
             <label>내용</label>
@@ -415,9 +402,7 @@ const TalentDetailPage = () => {
           <Modal.Title>재능 신청하기</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {requestError && (
-            <div className="alert alert-danger py-1">{requestError}</div>
-          )}
+          {requestError && <div className="alert alert-danger py-1">{requestError}</div>}
 
           <form onSubmit={handleRequestSubmit}>
             <div className="mb-2">
@@ -455,16 +440,27 @@ const TalentDetailPage = () => {
         </Modal.Header>
         <Modal.Body>정말 삭제하시겠습니까?</Modal.Body>
         <Modal.Footer>
-          <button
-            className="btn btn-secondary"
-            onClick={() => setShowDeleteModal(false)}
-          >
+          <button className="btn btn-secondary" onClick={() => setShowDeleteModal(false)}>
             취소
           </button>
           <button className="btn btn-danger" onClick={handleDelete}>
             삭제
           </button>
         </Modal.Footer>
+      </Modal>
+
+      {/* ✅ [추가] 썸네일 확대 모달 */}
+      <Modal show={showImageModal} onHide={() => setShowImageModal(false)} centered size="lg">
+        <Modal.Header closeButton>
+          <Modal.Title>이미지 확대</Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="text-center">
+          <img
+            src={zoomImageSrc}
+            alt="확대 이미지"
+            style={{ width: "100%", height: "auto", borderRadius: "8px" }}
+          />
+        </Modal.Body>
       </Modal>
     </div>
   );

@@ -10,15 +10,15 @@ const Navbar = () => {
   const navigate = useNavigate();
 
   const currentUser = useUserStore((state) => state.user);
-  const clearUser = useUserStore((state) => state.clearUser); // ✅ 스토어에 있는 함수명
+  const clearUser = useUserStore((state) => state.clearUser);
 
   const isActive = (path) => location.pathname.startsWith(path);
 
   // 로그아웃
   const handleLogout = () => {
-    clearUser();                 // ✅ zustand 스토어 비우기
+    clearUser();
     try {
-      localStorage.removeItem("currentUser"); // persist 된 값도 제거
+      localStorage.removeItem("currentUser");
     } catch (e) {}
     navigate("/login");
   };
@@ -30,7 +30,6 @@ const Navbar = () => {
     }
 
     try {
-      // @DeleteMapping("/api/user/me") 기준
       await api.delete("/user/me");
 
       alert("회원 탈퇴가 완료되었습니다.");
@@ -49,20 +48,17 @@ const Navbar = () => {
   return (
     <nav className="navbar navbar-expand-lg">
       <div className="container">
-        {/* 로고 */}
-        <Link className="navbar-brand" to="/talents">
+        {/* ✅ 로고 → index */}
+        <Link className="navbar-brand" to="/">
           MY TALENT
         </Link>
 
-        {/* 모바일 토글 버튼 */}
+        {/* 모바일 토글 */}
         <button
           className="navbar-toggler"
           type="button"
           data-bs-toggle="collapse"
           data-bs-target="#navbarMain"
-          aria-controls="navbarMain"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
         >
           <span className="navbar-toggler-icon" />
         </button>
@@ -79,7 +75,6 @@ const Navbar = () => {
               </Link>
             </li>
             <li className="nav-item">
-              {/* 실제 라우트는 /trades 라서 수정 */}
               <Link
                 className={`nav-link ${isActive("/trades") ? "active" : ""}`}
                 to="/trades"
@@ -96,7 +91,6 @@ const Navbar = () => {
               </Link>
             </li>
 
-           
             {currentUser?.role === "ADMIN" && (
               <li className="nav-item">
                 <Link
@@ -130,32 +124,22 @@ const Navbar = () => {
               <li className="nav-item dropdown">
                 <button
                   className="btn btn-dark dropdown-toggle"
-                  type="button"
-                  id="userDropdown"
                   data-bs-toggle="dropdown"
-                  aria-expanded="false"
                 >
                   {currentUser.nickname || currentUser.userId}
                 </button>
-                <ul
-                  className="dropdown-menu dropdown-menu-end"
-                  aria-labelledby="userDropdown"
-                >
+                <ul className="dropdown-menu dropdown-menu-end">
                   <li>
                     <button
-                      type="button"
                       className="dropdown-item"
                       onClick={() => navigate("/profile")}
                     >
                       프로필
                     </button>
                   </li>
-                  <li>
-                    <hr className="dropdown-divider" />
-                  </li>
+                  <li><hr className="dropdown-divider" /></li>
                   <li>
                     <button
-                      type="button"
                       className="dropdown-item"
                       onClick={handleLogout}
                     >
@@ -164,7 +148,6 @@ const Navbar = () => {
                   </li>
                   <li>
                     <button
-                      type="button"
                       className="dropdown-item text-danger"
                       onClick={handleDeleteAccount}
                     >

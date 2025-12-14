@@ -1,5 +1,5 @@
 // src/App.jsx
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import LoginPage from "./pages/auth/LoginPage";
 import TalentListPage from "./pages/talents/TalentListPage";
@@ -15,6 +15,7 @@ import TradeListPage from "./pages/trade/TradeListPage";
 import TradeCreatePage from "./pages/trade/TradeCreatePage";
 import TradeDetailPage from "./pages/trade/TradeDetailPage";
 import StorePage from "./pages/store/StorePage";
+import IndexPage from "./pages/index/IndexPage";
 
 import "./index.css";
 
@@ -25,10 +26,10 @@ function App() {
 
       <main className="container py-4">
         <Routes>
-          {/* 기본 진입은 /login 으로 */}
-          <Route path="/" element={<Navigate to="/login" replace />} />
+          
+          <Route path="/" element={<IndexPage />} />
 
-          {/* 인증 관련 */}
+          {/* 인증 */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<Register />} />
 
@@ -36,13 +37,13 @@ function App() {
           <Route path="/admin/users" element={<AdminUserPage />} />
           <Route path="/admin/talents" element={<AdminTalentPage />} />
 
-          {/* 재능 게시판 */}
+          {/* 재능 */}
           <Route path="/talents" element={<TalentListPage />} />
           <Route path="/talents/create" element={<TalentCreatePage />} />
           <Route path="/talents/:id" element={<TalentDetail />} />
           <Route path="/talents/:id/edit" element={<TalentEditPage />} />
 
-          {/* 교환(Trade) */}
+          {/* 교환 */}
           <Route path="/trades" element={<TradeListPage />} />
           <Route path="/trades/create" element={<TradeCreatePage />} />
           <Route path="/trades/:id" element={<TradeDetailPage />} />

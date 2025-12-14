@@ -138,6 +138,8 @@ public class TalentRequestServiceImpl implements TalentRequestService {
         request.accept();
 
         // @Transactional 이면 별도 save 없어도 flush 시 반영됨
+
+        request.getTalent().setStatus("CLOSED");
     }
 
 
