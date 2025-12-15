@@ -56,48 +56,7 @@ const Profile = () => {
             <div className="col-6 d-flex align-items-center">
               <h3 className="m-0">내 프로필</h3>
 
-              {/* ⚙ 드롭다운 메뉴 */}
-              <div className="dropdown ms-2">
-                <button
-                  className="btn btn-light btn-sm dropdown-toggle"
-                  type="button"
-                  data-bs-toggle="dropdown"
-                >
-                  ⚙
-                </button>
-
-                <ul className="dropdown-menu">
-                  <li>
-                    <button className="dropdown-item" disabled>
-                      프로필 수정 (준비중)
-                    </button>
-                  </li>
-
-                  <li>
-                    <button
-                      className="dropdown-item"
-                      onClick={() => {
-                        clearUser();
-                        navigate("/login");
-                      }}
-                    >
-                      로그아웃
-                    </button>
-                  </li>
-
-                  <li><hr className="dropdown-divider" /></li>
-
-                  <li>
-                    <button
-                      className="dropdown-item text-danger"
-                      onClick={handleDelete}
-                    >
-                      회원 탈퇴
-                    </button>
-                  </li>
-                </ul>
-              </div>
-            </div>
+              
 
             {/* 우측 : 유저 정보 */}
             <div className="col-6 profile-user-info text-end">
@@ -108,6 +67,7 @@ const Profile = () => {
 
           </div>
         </div>
+      </div>
 
 
         {/* ----------------- 본문 ----------------- */}
