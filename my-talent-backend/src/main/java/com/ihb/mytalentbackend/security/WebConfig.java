@@ -17,7 +17,7 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowCredentials(true);
     }
 
-    // ⭐ 여기 추가
+    // 여기 추가
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         String projectRoot = System.getProperty("user.dir"); // 현재 프로젝트 루트

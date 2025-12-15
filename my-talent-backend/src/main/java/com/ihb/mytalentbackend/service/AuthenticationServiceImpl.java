@@ -32,7 +32,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         User signedIn = principal.getUser();
 
-        // 🔹 credit 이 null 이면 0으로 맞춰주기
+        //  credit 이 null 이면 0으로 맞춰주기
         if (signedIn.getCredit() == null) {
             signedIn.setCredit(0);
         }

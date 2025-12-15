@@ -50,7 +50,7 @@ public class FileServiceImpl implements FileService {
                             .build()
             );
 
-            // 🔹 엔티티 → DTO
+            //  엔티티 → DTO
             UploadFileDTO dto = new UploadFileDTO();
             dto.setId(saved.getId());
             dto.setOriginalName(saved.getOriginalName());

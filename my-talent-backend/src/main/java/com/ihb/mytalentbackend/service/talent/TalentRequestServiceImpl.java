@@ -26,7 +26,7 @@ public class TalentRequestServiceImpl implements TalentRequestService {
     private final TalentRepository talentRepository;
     private final UserRepository userRepository;
 
-    // ================= 신청 생성 =================
+
     @Override
     public TalentRequestResponseDTO createRequest(Long talentId,
                                                   Long requesterId,
@@ -65,7 +65,7 @@ public class TalentRequestServiceImpl implements TalentRequestService {
         return entityToDto(saved);
     }
 
-    // ================= 내가 신청한 목록 =================
+    // 신청 목록
     @Override
     public List<TalentRequestResponseDTO> getMyRequests(Long requesterId) {
         User requester = userRepository.findById(requesterId)
@@ -76,7 +76,7 @@ public class TalentRequestServiceImpl implements TalentRequestService {
                 .toList();
     }
 
-    // ================= 내 재능에 들어온 신청들 =================
+    // 신청목록
     @Override
     public List<TalentRequestResponseDTO> getRequestsForTalent(Long talentId, Long ownerId) {
 
@@ -113,31 +113,24 @@ public class TalentRequestServiceImpl implements TalentRequestService {
         User buyer = request.getRequester();      // 신청자
         User seller = request.getTalent().getUser(); // 판매자
 
-        int buyerCredit = (buyer.getCredit() == null) ? 0 : buyer.getCredit();
+        int buyerCredit = (buyer.getCredit() == null) ? 0 : buyer.getCredit();      //null의 경우를 위해 0으로 보정함
         int sellerCredit = (seller.getCredit() == null) ? 0 : seller.getCredit();
         int totalCredits = request.getTotalCredits();
 
 
 
-// 부족 여부 체크
+         // 크래딧 부족 여부 체크
         if (buyer.getRole() != Role.ADMIN) {
             buyerCredit = buyer.getCredit() == null ? 0 : buyer.getCredit();
             if (buyerCredit < totalCredits) {
                 throw new RuntimeException("구매자의 크래딧이 부족합니다.");
             }
         }
-
-
-// 구매자 차감
-        buyer.setCredit(buyerCredit - totalCredits);
-
-// 판매자 증가
-        seller.setCredit(sellerCredit + totalCredits);
-
-// 상태 변경
+         
+        //실제 거래 발생
+        buyer.setCredit(buyerCredit - totalCredits); // 구매자 차감
+        seller.setCredit(sellerCredit + totalCredits); // 판매자 증가
         request.accept();
-
-        // @Transactional 이면 별도 save 없어도 flush 시 반영됨
 
         request.getTalent().setStatus("CLOSED");
     }

@@ -206,7 +206,7 @@ const TalentDetailPage = () => {
     }
   };
 
-  // ✅ [추가] 썸네일 클릭 시 확대
+  //  [추가] 썸네일 클릭 시 확대
   const handleZoomImage = (src) => {
     setZoomImageSrc(src);
     setShowImageModal(true);
@@ -225,7 +225,7 @@ const TalentDetailPage = () => {
             src={`${BASE_API_URL}${data.thumbnailUrl}`}
             alt="썸네일"
             style={{ maxWidth: "300px", borderRadius: "8px", cursor: "zoom-in" }}
-            onClick={() => handleZoomImage(`${BASE_API_URL}${data.thumbnailUrl}`)}  // ✅ [추가]
+            onClick={() => handleZoomImage(`${BASE_API_URL}${data.thumbnailUrl}`)}  
           />
         </div>
       )}

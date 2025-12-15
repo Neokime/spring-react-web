@@ -41,11 +41,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User findUserByEmail(String email) {
+
         return userRepository.findByEmail(email).orElse(null);
     }
 
     @Override
     public User findUserByUserId(String userId) {
+
         return userRepository.findByUserId(userId).orElse(null);
     }
 
@@ -53,6 +55,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void changeRole(String email, Role newRole) {
+
         userRepository.updateUserRole(email, newRole);
     }
 

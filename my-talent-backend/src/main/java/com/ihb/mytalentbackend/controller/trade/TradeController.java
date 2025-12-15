@@ -71,7 +71,7 @@ public class TradeController {
     }
 
     // ==========================
-// 🔹 6. 특정 게시글에 교환 신청하기
+//  6. 특정 게시글에 교환 신청하기
 // ==========================
     @PostMapping("/{id}/requests")
     public TradeRequestResponseDTO requestTrade(
@@ -85,7 +85,7 @@ public class TradeController {
 
 
     // ==========================
-    // 🔹 7. 게시글 주인이 받은 신청 목록 조회
+    //  7. 게시글 주인이 받은 신청 목록 조회
     // ==========================
     @GetMapping("/{id}/requests")
     public List<TradeRequestResponseDTO> getTradeRequests(@PathVariable Long id) {
@@ -93,7 +93,7 @@ public class TradeController {
     }
 
     // ==========================
-    // 🔹 8. 교환 신청 수락
+    //  8. 교환 신청 수락
     // ==========================
     @PostMapping("/{id}/requests/{requestId}/accept")
     public void acceptTradeRequest(

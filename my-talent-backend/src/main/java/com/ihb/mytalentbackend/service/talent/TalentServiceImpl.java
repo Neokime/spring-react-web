@@ -37,7 +37,7 @@ public class TalentServiceImpl implements TalentService {
 
         TalentBoard entity = dtoToEntity(request, user);
 
-        // ⭐ 썸네일 설정 (thumbnailId가 넘어온 경우)
+        //  썸네일 설정 (thumbnailId가 넘어온 경우)
         if (request.getThumbnailId() != null) {
             UploadFile thumbnail = uploadFileRepository.findById(request.getThumbnailId())
                     .orElseThrow(() -> new RuntimeException("썸네일 파일을 찾을 수 없습니다."));

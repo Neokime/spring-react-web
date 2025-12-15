@@ -25,9 +25,8 @@ public class StoreServiceImpl implements StoreService {
     private final PurchaseHistoryRepository purchaseHistoryRepository;
     private final UserRepository userRepository;
 
-    // ======================
-    //  🔹 생성
-    // ======================
+
+    //   생성
     @Override
     public StoreItemResponseDTO createItem(StoreItemRequestDTO request) {
 
@@ -43,9 +42,8 @@ public class StoreServiceImpl implements StoreService {
         return toStoreItemDto(saved);
     }
 
-    // ======================
-    // 🔹 전체 목록
-    // ======================
+
+    // 전체 목록
     @Override
     public List<StoreItemResponseDTO> getAllItems() {
         return storeItemRepository.findAll().stream()
@@ -53,9 +51,7 @@ public class StoreServiceImpl implements StoreService {
                 .toList();
     }
 
-    // ======================
-    // 🔹 수정
-    // ======================
+    // 수정
     @Override
     public StoreItemResponseDTO updateItem(Long id, StoreItemRequestDTO request) {
 
@@ -70,9 +66,8 @@ public class StoreServiceImpl implements StoreService {
         return toStoreItemDto(item);
     }
 
-    // ======================
-    // 🔹 삭제
-    // ======================
+
+    // 삭제
     @Transactional
     public void deleteItem(Long itemId) {
 
@@ -84,9 +79,8 @@ public class StoreServiceImpl implements StoreService {
     }
 
 
-    // ======================
-    // 🔥 구매 기능 - 크레딧 차감 없음(지금은 구조만)
-    // ======================
+
+    // 구매 기능 - 크레딧 차감 없음(지금은 구조만)
     @Override
     public PurchaseResponseDTO purchaseItem(Long itemId, Long userId) {
 
@@ -96,19 +90,19 @@ public class StoreServiceImpl implements StoreService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("유저 없음"));
 
-        // 🔹 관리자 여부 체크 (Role이 enum이라고 가정)
+        //  관리자 여부 체크 (Role이 enum이라고 가정)
         boolean isAdmin = user.getRole() == Role.ADMIN;
 
         // 현재 크레딧 / 가격을 안전하게 int 로 꺼내기
         int currentCredit = user.getCredit() == null ? 0 : user.getCredit();
         int price = item.getPrice().intValue(); // price가 Integer여도 .intValue()는 문제 없음
 
-        // ⭐ 관리자 아닌 경우에만 크레딧 체크
+        //  관리자 아닌 경우에만 크레딧 체크
         if (!isAdmin && currentCredit < price) {
             throw new RuntimeException("크래딧이 부족합니다.");
         }
 
-        // ⭐ 관리자 아닌 경우에만 크레딧 차감
+        //  관리자 아닌 경우에만 크레딧 차감
         if (!isAdmin) {
             user.setCredit(currentCredit - price);
         }
@@ -125,9 +119,8 @@ public class StoreServiceImpl implements StoreService {
 
 
 
-    // ======================
-    // 🔹 내가 구매한 내역
-    // ======================
+
+    // 내가 구매한 내역
     @Override
     public List<PurchaseResponseDTO> getMyPurchases(Long userId) {
 
@@ -137,9 +130,7 @@ public class StoreServiceImpl implements StoreService {
                 .toList();
     }
 
-    // ======================
-    // Mapper
-    // ======================
+
 
     private StoreItemResponseDTO toStoreItemDto(StoreItem item) {
         return StoreItemResponseDTO.builder()

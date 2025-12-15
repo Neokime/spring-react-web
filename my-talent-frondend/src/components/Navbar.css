@@ -20,7 +20,7 @@
 
 .navbar-brand {
   font-weight: 700;
-  font-size: 18px;
+  font-size: 30px;
   color: #111827 !important;
   letter-spacing: -0.4px;
   display: flex;
@@ -28,7 +28,7 @@
 }
 
 .navbar-brand img {
-  height: 26px;
+  height: 40px;
   margin-right: 8px;
 }
 

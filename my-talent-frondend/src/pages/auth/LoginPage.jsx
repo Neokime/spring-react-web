@@ -19,7 +19,7 @@ const Login = () => {
 
   const currentUser = useUserStore((state) => state.user);
 
-  // 🔥 수정된 부분: setCurrentUser → setUser
+  //  수정된 부분: setCurrentUser → setUser
   const setUser = useUserStore((state) => state.setUser);
 
   const navigate = useNavigate();
@@ -53,7 +53,7 @@ const Login = () => {
 
       const user = response.data;
 
-      // 🔥 수정된 부분: setCurrentUser → setUser
+      //  수정된 부분: setCurrentUser → setUser
       setUser({
         id: user.id,
         userId: user.userId,

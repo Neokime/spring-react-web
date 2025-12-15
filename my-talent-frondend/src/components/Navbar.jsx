@@ -48,7 +48,7 @@ const Navbar = () => {
   return (
     <nav className="navbar navbar-expand-lg">
       <div className="container">
-        {/* ✅ 로고 → index */}
+        {/* 로고 → index */}
         <Link className="navbar-brand" to="/">
           MY TALENT
         </Link>
